@@ -15,7 +15,17 @@ go get -u ./...
 for get all the dependency used in this project. then make a database in Postgres and add your database config into /config/config.go
 and go to the root project directory and run 
 
-go run main.go
+install air package in golang
 
-user_name	user_location	user_description	user_created	user_followers	user_friends	user_favourites	user_verified	date	text	hashtags	source	is_retweet
+go install github.com/air-verse/air@latest
+
+
+and open your project, and install the package golang
+```
+go install 
+```
+then run this script
+```
+air 
+```
 
