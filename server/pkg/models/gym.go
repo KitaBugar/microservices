@@ -34,18 +34,19 @@ type Gym struct {
 
 // Response
 type GymResponse struct {
-	ID             uint            `json:"id"`
-	Name           string          `json:"name"`
-	Images         []ImageResponse `json:"image"`
-	Description    string          `json:"description"`
-	OperatingHours string          `json:"operating_hours"`
-	Address        string          `json:"address"`
-	CityID         int             `json:"city_id"`
-	ProvinceID     int             `json:"province_id"`
-	UserID         uint            `json:"user_id"`
-	CreatedAt      string          `json:"created_at"`
-	UpdatedAt      string          `json:"updated_at"`
-	Facilities     []*Facility     `json:"facilities"`
+	ID                uint               `json:"id"`
+	Name              string             `json:"name"`
+	Images            []ImageResponse    `json:"image"`
+	Description       string             `json:"description"`
+	OperatingHours    string             `json:"operating_hours"`
+	Address           string             `json:"address"`
+	CityID            int                `json:"city_id"`
+	ProvinceID        int                `json:"province_id"`
+	UserID            uint               `json:"user_id"`
+	CreatedAt         string             `json:"created_at"`
+	UpdatedAt         string             `json:"updated_at"`
+	MembershipOptions []MembershipOption `json:"membership_options"`
+	Facilities        []*Facility        `json:"facilities"`
 }
 
 func (u *Gym) ToResponse() *GymResponse {
@@ -66,17 +67,18 @@ func (u *Gym) ToResponse() *GymResponse {
 	}
 
 	return &GymResponse{
-		ID:             u.ID,
-		Name:           u.Name,
-		Images:         images,
-		Description:    u.Description,
-		OperatingHours: u.OperatingHours,
-		Address:        u.Address,
-		CityID:         u.CityID,
-		ProvinceID:     u.ProvinceID,
-		UserID:         u.UserID,
-		CreatedAt:      u.CreatedAt.Format(time.RFC3339),
-		UpdatedAt:      u.UpdatedAt.Format(time.RFC3339),
-		Facilities:     u.Facilities,
+		ID:                u.ID,
+		Name:              u.Name,
+		Images:            images,
+		Description:       u.Description,
+		OperatingHours:    u.OperatingHours,
+		Address:           u.Address,
+		CityID:            u.CityID,
+		ProvinceID:        u.ProvinceID,
+		UserID:            u.UserID,
+		CreatedAt:         u.CreatedAt.Format(time.RFC3339),
+		UpdatedAt:         u.UpdatedAt.Format(time.RFC3339),
+		MembershipOptions: u.MembershipOptions,
+		Facilities:        u.Facilities,
 	}
 }

@@ -40,9 +40,7 @@ func BuyMembership(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
 	memberOp := &models.MembershipOption{}
 	methodPay := &models.MethodPayment{}
 	transaction := &models.Transaction{}
-	// if err != nil {
-	// 	return nil, err
-	// }
+
 	email, ok := r.Context().Value(middleware.EmailKey).(string)
 	if email == "" || !ok {
 		respondError(w, http.StatusBadRequest, "Akun tidak ditemukan")
@@ -140,7 +138,7 @@ func BuyMembership(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
 
 	respondJSON(w, http.StatusCreated, map[string]interface{}{
 		"data": map[string]interface{}{
-			"transaction": transaction,
+			"transaction": transaction.TransactionResponse(),
 			"membership":  member,
 		},
 		"message": "Berhasil membuat transaksi",

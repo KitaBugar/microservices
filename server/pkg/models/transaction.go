@@ -1,6 +1,16 @@
 package models
 
-import "gorm.io/gorm"
+import (
+	"fmt"
+	"os"
+
+	"gorm.io/gorm"
+)
+
+type ImageTransaction struct {
+	Image    string `json:"image"`
+	ImageUrl string `json:"image_url"`
+}
 
 type Transaction struct {
 	ID                 int    `gorm:"primaryKey"`
@@ -13,4 +23,33 @@ type Transaction struct {
 	UserID             int    `json:"user"`
 	GymID              int    `json:"gym"`
 	gorm.Model         `json:"-"`
+}
+
+type TransactionResponse struct {
+	ID                 int              `gorm:"primaryKey"`
+	Image              ImageTransaction `gorm:"type:varchar(100);not null"`
+	MethodName         string           `gorm:"type:varchar(50);not null"`
+	AccountNumber      string           `gorm:"type:varchar(30);not null"`
+	Status             string           `gorm:"type:ENUM('success', 'pending', 'cancel')"`
+	Price              int              `gorm:"not null"`
+	MembershipOptionID int              `json:"membership_option"`
+	UserID             int              `json:"user"`
+	GymID              int              `json:"gym"`
+	gorm.Model         `json:"-"`
+}
+
+func (u *Transaction) TransactionResponse() *TransactionResponse {
+	return &TransactionResponse{
+		Image: ImageTransaction{
+			Image:    u.Image,
+			ImageUrl: fmt.Sprintf("%s/assets/transaction/%s", os.Getenv("APP_URL"), u.Image),
+		},
+		MethodName:         u.MethodName,
+		AccountNumber:      u.AccountNumber,
+		Status:             u.Status,
+		Price:              u.Price,
+		MembershipOptionID: u.MembershipOptionID,
+		UserID:             u.UserID,
+		GymID:              u.GymID,
+	}
 }
