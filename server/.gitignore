@@ -37,4 +37,5 @@
 
 .env
 
+/public/
 /public/*
