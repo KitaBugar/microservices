@@ -11,23 +11,25 @@ export default function Login() {
   });
 
   return (
-    <Form {...form}>
-      <form onSubmit={form.handleSubmit((data) => console.log(data))}>
-        <FormField
-          name="email"
-          control={form.control}
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Email</FormLabel>
-              <FormControl>
-                <Input {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <button type="submit">Login</button>
-      </form>
-    </Form>
+    <div>
+      <Form {...form}>
+        <form onSubmit={form.handleSubmit((data) => console.log(data))}>
+          <FormField
+            name="email"
+            control={form.control}
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Email</FormLabel>
+                <FormControl>
+                  <Input {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <button type="submit">Login</button>
+        </form>
+      </Form>
+    </div>
   );
 }

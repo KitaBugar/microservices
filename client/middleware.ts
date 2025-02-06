@@ -2,8 +2,8 @@ import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
 
-const protectedRoutes = ['/dashboard']
-const publicRoutes = ['/login', '/signup', '/']
+const protectedRoutes = ["/", "/dashboard"];
+const publicRoutes = ['/login', '/signup','/*']
 export default async function middleware(req: NextRequest) {
   const token = req.cookies.get("token")?.value;
   const path = req.nextUrl.pathname
@@ -11,18 +11,17 @@ export default async function middleware(req: NextRequest) {
   const isPublicRoute = publicRoutes.includes(path)
 
 
-  // const session = req.cookies.get("auth_token")?.value;
-  // if (isProtectedRoute && !session) {
-  //   return NextResponse.redirect(new URL('/login', req.nextUrl))
+  //  if (token && isPublicRoute) {
+  //   return NextResponse.redirect(new URL("/", req.url));
   // }
 
-  if (!token && req.nextUrl.pathname.startsWith("/dashboard")) {
-    return NextResponse.redirect(new URL("/login", req.url));
-  }
+  // if (!token && isProtectedRoute) {
+  //   return NextResponse.redirect(new URL("/login", req.url));
+  // }
 
   return NextResponse.next();
 }
 
 export const config = {
-  matcher: ["/dashboard/:path*"],
+  matcher: ["/","/:path*"],
 };

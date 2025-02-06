@@ -11,37 +11,37 @@ const routes = [
   {
     label: 'Dashboard',
     icon: HomeIcon,
-    href: '/dashboard',
+    href: '',
   },
   {
     label: 'Cities',
     icon: BuildingIcon,
-    href: '/dashboard/cities',
+    href: '/cities',
   },
   {
     label: 'Facilities',
     icon: DumbbellIcon,
-    href: '/dashboard/facilities',
+    href: '/facilities',
   },
   {
     label: 'Gyms',
     icon: MapPin,
-    href: '/dashboard/gyms',
+    href: '/gyms',
   },
   {
     label: 'Testimonials',
     icon: MessageSquare,
-    href: '/dashboard/testimonials',
+    href: '/testimonials',
   },
   {
     label: 'Subscription Packages',
     icon: CreditCard,
-    href: '/dashboard/subscription-packages',
+    href: '/subscription-packages',
   },
   {
     label: 'Subscriptions',
     icon: CreditCard,
-    href: '/dashboard/subscriptions',
+    href: '/subscriptions',
   },
 ];
 
