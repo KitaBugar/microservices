@@ -33,10 +33,15 @@ import {
 } from "@/components/ui/alert-dialog";
 import { useToast } from "@/hooks/use-toast";
 import { Textarea } from "@/components/ui/textarea";
+import { RadioGroup } from "@/components/ui/radio-group";
+import { RadioGroupItem } from "@radix-ui/react-radio-group";
+import { Label } from "@/components/ui/label";
+import { Checkbox } from "@/components/ui/checkbox";
 
 export default function GymsPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [facilityQuery, setFacilityQuery] = useState("");
   const [selectedGym, setSelectedGym] = useState<typeof gyms[0] | null>(null);
   const [deleteGym, setDeleteGym] = useState<typeof gyms[0] | null>(null);
   const { toast } = useToast();
@@ -101,60 +106,41 @@ export default function GymsPage() {
             <form onSubmit={handleSave} className="space-y-4">
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <label htmlFor="name" className="text-sm font-medium">Name</label>
+                  <label htmlFor="name" className="text-sm font-medium">Nama Tempat</label>
                   <Input
                     id="name"
                     name="name"
-                    defaultValue={selectedGym?.name}
                     required
                   />
                 </div>
                 <div className="space-y-2">
-                  <label htmlFor="city" className="text-sm font-medium">City</label>
+                  <label htmlFor="city" className="text-sm font-medium">Kota</label>
                   <Input
                     id="city"
                     name="city"
-                    defaultValue={selectedGym?.city}
                     required
                   />
                 </div>
               </div>
               <div className="space-y-2">
-                <label htmlFor="address" className="text-sm font-medium">Address</label>
+                <label htmlFor="address" className="text-sm font-medium">Alamat</label>
                 <Input
                   id="address"
                   name="address"
-                  defaultValue={selectedGym?.address}
                   required
                 />
               </div>
               <div className="space-y-2">
-                <label htmlFor="thumbnail" className="text-sm font-medium">Thumbnail URL</label>
-                <Input
-                  id="thumbnail"
-                  name="thumbnail"
-                  type="url"
-                  defaultValue={selectedGym?.thumbnail}
-                  required
-                />
-              </div>
-              <div className="space-y-2">
-                <label htmlFor="description" className="text-sm font-medium">Description</label>
+                <label htmlFor="description" className="text-sm font-medium">Deskripsi</label>
                 <Textarea
                   id="description"
                   name="description"
-                  defaultValue={selectedGym?.description}
                   required
                 />
               </div>
               <div className="space-y-2">
-                <label htmlFor="about" className="text-sm font-medium">About</label>
-                <Textarea
-                  id="about"
-                  name="about"
-                  defaultValue={selectedGym?.about}
-                  required
-                />
+                <label htmlFor="thumbnail" className="text-sm font-medium">Image GYM</label>
+                <Input id="picture" name="images" type="file" />
               </div>
               <div className="grid grid-cols-3 gap-4">
                 <div className="space-y-2">
@@ -163,7 +149,6 @@ export default function GymsPage() {
                     id="open_time"
                     name="open_time"
                     type="time"
-                    defaultValue={selectedGym?.open_time}
                     required
                   />
                 </div>
@@ -173,29 +158,14 @@ export default function GymsPage() {
                     id="close_time"
                     name="close_time"
                     type="time"
-                    defaultValue={selectedGym?.close_time}
                     required
                   />
                 </div>
-                <div className="space-y-2 flex items-center pt-6">
-                  <input
-                    type="checkbox"
-                    id="is_popular"
-                    name="is_popular"
-                    defaultChecked={selectedGym?.is_popular}
-                    className="mr-2"
-                  />
-                  <label htmlFor="is_popular" className="text-sm font-medium">Popular Gym</label>
-                </div>
               </div>
               <div className="space-y-2">
-                <label htmlFor="facilities" className="text-sm font-medium">Facilities (comma-separated)</label>
-                <Input
-                  id="facilities"
-                  name="facilities"
-                  defaultValue={selectedGym?.facilities.join(', ')}
-                  required
-                />
+                <Label htmlFor="facilities" className="text-sm font-medium">Facilities (comma-separated)</Label>
+                <br />
+                <Checkbox name="facilites" id="facilites" />
               </div>
               <div className="flex justify-end space-x-2">
                 <Button
