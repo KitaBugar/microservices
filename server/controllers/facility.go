@@ -3,34 +3,75 @@ package controllers
 import (
 	"encoding/json"
 	"fmt"
+	"io"
 	"net/http"
+	"os"
+	"path/filepath"
 	"server/pkg/models"
 	"server/utils"
+	"time"
 
+	"github.com/google/uuid"
 	"gorm.io/gorm"
 )
 
 func GetAllFacility(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
-	fmt.Println("helo")
+	facilities := []models.Facility{}
+
+	db.Find(&facilities)
+	var responses []models.FacilityResponse
+	for _, facility := range facilities {
+		responses = append(responses, *facility.ToResponse())
+	}
+	respondJSON(w, http.StatusOK, utils.ToResponse(r, responses, "Berhasil ambil fasilitas"))
 }
 
 func CreateFacility(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
 
-	hashPassword, _ := utils.HashPassword(r.FormValue("password"))
-	fmt.Println(hashPassword)
-	user := models.User{
-		Name:        r.FormValue("name"),
-		Email:       r.FormValue("email"),
-		PhoneNumber: r.FormValue("phone_number"),
-		Password:    hashPassword,
-		Role:        models.Admin,
+	facility := models.Facility{
+		Name: r.FormValue("name"),
 	}
 
-	db.Create(&user)
+	uploadedFile, handler, err := r.FormFile("image")
+	if err != nil {
+		respondError(w, http.StatusBadRequest, err.Error())
+		return
+	}
+	defer uploadedFile.Close()
 
-	response := user.ToResponse()
+	dir, _ := os.Getwd()
+	date := time.Now().Format("20060102")
+	randStr := uuid.New().String()
+	filename := fmt.Sprintf("facility_IMG_%s_%s%s", date, randStr, filepath.Ext(handler.Filename))
+
+	dirPath := filepath.Join(dir, "public", "facility")
+	if err := os.MkdirAll(dirPath, 0666); err != nil {
+		respondError(w, http.StatusInternalServerError, "Failed to create directory: "+err.Error())
+		return
+	}
+
+	location := filepath.Join(dirPath, filename)
+	targetFile, err := os.OpenFile(location, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0666)
+	if err != nil {
+		respondError(w, http.StatusInternalServerError, "Failed to save file: "+err.Error())
+		return
+	}
+	defer targetFile.Close()
+
+	if _, err := io.Copy(targetFile, uploadedFile); err != nil {
+		respondError(w, http.StatusBadRequest, "Failed to copy file content: "+err.Error())
+		return
+	}
+
+	facility.Image = filename
+
+	if err := db.Create(&facility).Error; err != nil {
+		respondError(w, http.StatusInternalServerError, "Failed to create facility: "+err.Error())
+		return
+	}
+
+	response := facility.ToResponse()
 	respondJSON(w, http.StatusCreated, response)
-	defer r.Body.Close()
 }
 
 func DetailFacility(db *gorm.DB, w http.ResponseWriter, r *http.Request) {

@@ -37,5 +37,6 @@
 
 .env
 
-/public/
-/public/*
+/public/avatar/*
+/public/image_banner/*
+/public/transaction/*

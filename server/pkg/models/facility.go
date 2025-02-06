@@ -1,6 +1,10 @@
 package models
 
 import (
+	"fmt"
+	"os"
+	"time"
+
 	"gorm.io/gorm"
 )
 
@@ -10,4 +14,30 @@ type Facility struct {
 	Name       string `gorm:"type:text;default:null" json:"name"`
 	Gyms       []*Gym `gorm:"many2many:gym_facilities;" json:"gyms"`
 	gorm.Model `json:"-"`
+}
+
+type ImageFacility struct {
+	URL      string `json:"url"`
+	ImageUrl string `json:"image_url"`
+}
+
+type FacilityResponse struct {
+	ID        uint          `json:"id"`
+	Image     ImageFacility `json:"image"`
+	Name      string        `json:"name"`
+	CreatedAt string        `json:"created_at"`
+	UpdatedAt string        `json:"updated_at"`
+}
+
+func (u *Facility) ToResponse() *FacilityResponse {
+	var images ImageFacility
+	images.URL = u.Image
+	images.ImageUrl = fmt.Sprintf("%s/assets/facility/%s", os.Getenv("APP_URL"), u.Image)
+	return &FacilityResponse{
+		ID:        u.ID,
+		Name:      u.Name,
+		Image:     images,
+		CreatedAt: u.CreatedAt.Format(time.RFC3339),
+		UpdatedAt: u.UpdatedAt.Format(time.RFC3339),
+	}
 }

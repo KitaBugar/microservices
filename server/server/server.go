@@ -100,6 +100,16 @@ func (a *App) setRouters() {
 	a.Post(apiRouter, "/membership", a.buyMembership)
 	a.Update(apiRouter, "/membership", a.updateGym)
 	a.Delete(apiRouter, "/membership", a.deleteGym)
+
+	// Location
+	a.Get(apiRouter, "/province", a.getAllProvince)
+	a.Get(apiRouter, "/province/{provinceID}", a.provinceById)
+	a.Get(apiRouter, "/regency", a.getAllRegency)
+	a.Get(apiRouter, "/regency/{regencyID}", a.regencyById)
+
+	// Facility
+	a.Get(apiRouter, "/facility", a.getAllFacility)
+	a.Post(apiRouter, "/facility", a.createFacility)
 }
 
 func (a *App) Get(apiRouter *mux.Router, path string, f func(w http.ResponseWriter, r *http.Request)) {
