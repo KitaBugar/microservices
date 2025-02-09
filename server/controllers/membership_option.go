@@ -43,61 +43,44 @@ func CreateMembershipOptions(db *gorm.DB, w http.ResponseWriter, r *http.Request
 		return
 	}
 
-	membershipOptions := []models.MembershipOption{}
+	membershipOptions := models.MembershipOption{}
 	gym := &models.Gym{}
 	db.Preload("MembershipOptions").First(&gym, gymID)
-	membershipCount := 0
-	for {
-		name := r.FormValue(fmt.Sprintf("membership_options[%d].name", membershipCount))
-		price := r.FormValue(fmt.Sprintf("membership_options[%d].price", membershipCount))
-		if name == "" && price == "" {
-			break
-		}
-		membershipCount++
-	}
-	for i := 0; i < membershipCount; i++ {
-		nameKey := fmt.Sprintf("membership_options[%d].name", i)
-		descriptionKey := fmt.Sprintf("membership_options[%d].description", i)
-		priceKey := fmt.Sprintf("membership_options[%d].price", i)
-		featuresKey := fmt.Sprintf("membership_options[%d].features", i)
 
-		name := r.FormValue(nameKey)
-		description := r.FormValue(descriptionKey)
-		priceStr := r.FormValue(priceKey)
+	name := r.FormValue("name")
+	description := r.FormValue("description")
+	priceStr := r.FormValue("price")
 
-		if priceStr == "" {
-			fmt.Println(priceStr)
-			respondError(w, http.StatusBadRequest, fmt.Sprintf("Price is required for membership option %d", i))
-			return
-		}
-
-		featuresJSON := r.FormValue(featuresKey)
-		price, err := strconv.Atoi(priceStr)
-
-		if err != nil {
-			respondError(w, http.StatusBadRequest, err.Error())
-			return
-		}
-
-		var features []string
-		if err := json.Unmarshal([]byte(featuresJSON), &features); err != nil {
-			http.Error(w, "Invalid JSON format for features", http.StatusBadRequest)
-			return
-		}
-		featuresBytes, _ := json.Marshal(features)
-		membershipOptions = append(membershipOptions, models.MembershipOption{
-			Name:        name,
-			Description: description,
-			Price:       price,
-			Features:    string(featuresBytes),
-			UserID:      gym.UserID,
-			GymID:       gym.ID,
-		})
+	if priceStr == "" {
+		fmt.Println(priceStr)
+		respondError(w, http.StatusBadRequest, "Price is required for membership option")
+		return
 	}
 
-	if len(membershipOptions) > 0 {
-		db.Create(&membershipOptions)
+	featuresJSON := r.FormValue("features")
+	price, err := strconv.Atoi(priceStr)
+
+	if err != nil {
+		respondError(w, http.StatusBadRequest, err.Error())
+		return
 	}
+
+	var features []string
+	if err := json.Unmarshal([]byte(featuresJSON), &features); err != nil {
+		http.Error(w, "Invalid JSON format for features", http.StatusBadRequest)
+		return
+	}
+	featuresBytes, _ := json.Marshal(features)
+	membershipOptions = models.MembershipOption{
+		Name:        name,
+		Description: description,
+		Price:       price,
+		Features:    string(featuresBytes),
+		UserID:      gym.UserID,
+		GymID:       gym.ID,
+	}
+
+	db.Create(&membershipOptions)
 	respondJSON(w, http.StatusOK, gym.ToResponse())
 }
 func UpdateMembershipOptions(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
