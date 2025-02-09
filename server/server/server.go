@@ -103,7 +103,7 @@ func (a *App) setRouters() {
 
 	// Membership Options
 	a.Get(apiRouter, "/membership-option", a.getAllMembershipOptions)
-	a.Post(apiRouter, "/membership-option", a.createMembershipOptions)
+	a.Post(apiRouter, "/membership-option/{gymID}", a.createMembershipOptions)
 	a.Update(apiRouter, "/membership-option", a.updateGym)
 	a.Delete(apiRouter, "/membership-option", a.deleteGym)
 

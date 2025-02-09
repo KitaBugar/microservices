@@ -8,6 +8,7 @@ import (
 	"server/utils"
 	"strconv"
 
+	"github.com/gorilla/mux"
 	"gorm.io/gorm"
 )
 
@@ -29,7 +30,22 @@ func GetAllMembershipOptions(db *gorm.DB, w http.ResponseWriter, r *http.Request
 }
 
 func CreateMembershipOptions(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	str, ok := vars["gymID"]
+	if !ok {
+		respondError(w, http.StatusBadRequest, "Missing gym id")
+		return
+	}
+
+	gymID, err := strconv.Atoi(str)
+	if err != nil {
+		respondError(w, http.StatusBadRequest, "Invalid gym id")
+		return
+	}
+
 	membershipOptions := []models.MembershipOption{}
+	gym := &models.Gym{}
+	db.Preload("MembershipOptions").First(&gym, gymID)
 	membershipCount := 0
 	for {
 		name := r.FormValue(fmt.Sprintf("membership_options[%d].name", membershipCount))
@@ -74,7 +90,7 @@ func CreateMembershipOptions(db *gorm.DB, w http.ResponseWriter, r *http.Request
 			Description: description,
 			Price:       price,
 			Features:    string(featuresBytes),
-			UserID:      user.ID,
+			UserID:      gym.UserID,
 			GymID:       gym.ID,
 		})
 	}
