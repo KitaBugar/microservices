@@ -11,6 +11,7 @@ import (
 
 	"github.com/go-playground/validator/v10"
 	"github.com/gorilla/mux"
+	"github.com/rs/cors"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 )
@@ -50,10 +51,17 @@ func (a *App) Initialize(config *config.Config) {
 
 	fmt.Println("Successfully connected!")
 	a.Router = mux.NewRouter()
+
 	fs := http.FileServer(http.Dir("./public"))
 	a.Router.PathPrefix("/assets/").Handler(http.StripPrefix("/assets/", fs))
+	c := cors.New(cors.Options{
+		AllowedOrigins:   []string{"http://localhost:3000"},
+		AllowedMethods:   []string{"OPTIONS", "GET", "POST", "PUT", "DELETE"},
+		AllowedHeaders:   []string{"Authorization"},
+		AllowCredentials: true,
+	})
+	a.Router.Use(c.Handler)
 	a.setRouters()
-
 	a.DB.AutoMigrate(&models.User{},
 		&models.Gym{},
 		&models.Facility{},
@@ -69,6 +77,10 @@ func (a *App) Initialize(config *config.Config) {
 func (a *App) setRouters() {
 	apiRouter := a.Router.PathPrefix("/api").Subrouter()
 	apiRouter.Use(middleware.Authorization)
+
+	apiRouter.HandleFunc("/{any:.*}", func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusOK)
+	}).Methods("OPTIONS")
 
 	// Authentication
 	apiRouterMiddle := a.Router.PathPrefix("/api").Subrouter()

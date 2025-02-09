@@ -54,13 +54,14 @@ func CreateGym(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	gym := models.Gym{
-		Name:           r.FormValue("name"),
-		Description:    r.FormValue("description"),
-		OperatingHours: r.FormValue("operating_hours"),
-		Address:        r.FormValue("address"),
-		CityID:         CityID,
-		ProvinceID:     ProvinceID,
-		UserID:         user.ID,
+		Name:        r.FormValue("name"),
+		Description: r.FormValue("description"),
+		StartTime:   r.FormValue("start_time"),
+		EndTime:     r.FormValue("end_time"),
+		Address:     r.FormValue("address"),
+		CityID:      CityID,
+		ProvinceID:  ProvinceID,
+		UserID:      user.ID,
 	}
 
 	check, nil := checkValidation(&gym)

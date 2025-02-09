@@ -7,7 +7,7 @@ import (
 )
 
 func GetAllProvince(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
-
+	// province :=
 }
 func GetAllRegency(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
 

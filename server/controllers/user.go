@@ -130,13 +130,13 @@ func LoginUser(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
 		User  models.User
 		Token string `json:"token"`
 	}
+
 	user := &models.User{
 		Email:    r.FormValue("email"),
 		Password: r.FormValue("password"),
 	}
 	if user.Email == "" {
 		respondError(w, http.StatusBadRequest, "email harap diisi")
-		fmt.Println("email belum diisi")
 		return
 	}
 	userPassword := user.Password

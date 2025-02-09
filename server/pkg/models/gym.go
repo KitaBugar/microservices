@@ -20,7 +20,8 @@ type Gym struct {
 	Name              string `gorm:"not null" validate:"required" json:"name"`
 	Images            string `gorm:"type:json" json:"image"`
 	Description       string `gorm:"type:text;default:null" validate:"required"  json:"description"`
-	OperatingHours    string `json:"operating_hours" validate:"required"`
+	StartTime         string `json:"start_time" validate:"required"`
+	EndTime           string `json:"end_time" validate:"required"`
 	Address           string `gorm:"type:text;default:null" validate:"required" json:"address"`
 	CityID            int    `gorm:"not null" json:"city_id"`
 	ProvinceID        int    `gorm:"not null" json:"province_id"`
@@ -38,7 +39,8 @@ type GymResponse struct {
 	Name              string             `json:"name"`
 	Images            []ImageResponse    `json:"image"`
 	Description       string             `json:"description"`
-	OperatingHours    string             `json:"operating_hours"`
+	StartTime         string             `json:"start_time" validate:"required"`
+	EndTime           string             `json:"end_time" validate:"required"`
 	Address           string             `json:"address"`
 	CityID            int                `json:"city_id"`
 	ProvinceID        int                `json:"province_id"`
@@ -71,7 +73,8 @@ func (u *Gym) ToResponse() *GymResponse {
 		Name:              u.Name,
 		Images:            images,
 		Description:       u.Description,
-		OperatingHours:    u.OperatingHours,
+		StartTime:         u.StartTime,
+		EndTime:           u.EndTime,
 		Address:           u.Address,
 		CityID:            u.CityID,
 		ProvinceID:        u.ProvinceID,
