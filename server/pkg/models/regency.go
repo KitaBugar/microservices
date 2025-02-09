@@ -1,7 +1,7 @@
 package models
 
 type Regency struct {
-	ID   int
-	Code int
-	Name string
+	ID   int    `json:"id"`
+	Code int    `json:"code"`
+	Name string `json:"name"`
 }

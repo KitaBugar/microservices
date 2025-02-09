@@ -13,7 +13,6 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/go-playground/validator/v10"
 	"github.com/google/uuid"
 	"github.com/gorilla/mux"
 	"gorm.io/gorm"
@@ -53,6 +52,11 @@ func CreateGym(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
 		respondError(w, http.StatusBadRequest, err.Error())
 		return
 	}
+	if err := r.ParseMultipartForm(10 << 20); err != nil {
+		respondError(w, http.StatusBadRequest, "Gagal memproses form")
+		return
+	}
+
 	gym := models.Gym{
 		Name:        r.FormValue("name"),
 		Description: r.FormValue("description"),
@@ -64,18 +68,9 @@ func CreateGym(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
 		UserID:      user.ID,
 	}
 
-	check, nil := checkValidation(&gym)
+	check, err := checkValidation(&gym)
 	if err != nil {
 		respondError(w, http.StatusBadRequest, check)
-		return
-	}
-	if err != nil {
-		validationErrors := err.(validator.ValidationErrors)
-		var errorMessages []string
-		for _, e := range validationErrors {
-			errorMessages = append(errorMessages, fmt.Sprintf("%s is %s", e.Field(), e.Tag()))
-		}
-		respondError(w, http.StatusBadRequest, errorMessages[0])
 		return
 	}
 
@@ -146,8 +141,9 @@ func CreateGym(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
 	membershipOptions := []models.MembershipOption{}
 	membershipCount := 0
 	for {
-		nameKey := fmt.Sprintf("membership_options[%d].name", membershipCount)
-		if r.FormValue(nameKey) == "" {
+		name := r.FormValue(fmt.Sprintf("membership_options[%d].name", membershipCount))
+		price := r.FormValue(fmt.Sprintf("membership_options[%d].price", membershipCount))
+		if name == "" && price == "" {
 			break
 		}
 		membershipCount++

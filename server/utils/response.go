@@ -30,12 +30,13 @@ func ToResponse(r *http.Request, items interface{}, message string) *Response {
 		nextPage = page + 1
 		prevPage = page - 1
 	}
+	path := r.URL.Path
 	parseNextPage := "page=" + strconv.Itoa(nextPage)
 	parsePrevPage := "page=" + strconv.Itoa(prevPage)
 	parseCurrentPage := "page=" + strconv.Itoa(page)
-	urlNextPage := fmt.Sprintf("%s?%s", os.Getenv("APP_URL"), parseNextPage)
-	urlPrevPage := fmt.Sprintf("%s?%s", os.Getenv("APP_URL"), parsePrevPage)
-	urlCurrentPage := fmt.Sprintf("%s?%s", os.Getenv("APP_URL"), parseCurrentPage)
+	urlNextPage := fmt.Sprintf("%s%s?%s", os.Getenv("APP_URL"), path, parseNextPage)
+	urlPrevPage := fmt.Sprintf("%s%s?%s", os.Getenv("APP_URL"), path, parsePrevPage)
+	urlCurrentPage := fmt.Sprintf("%s%s?%s", os.Getenv("APP_URL"), path, parseCurrentPage)
 	return &Response{
 		Items:       items,
 		Message:     message,

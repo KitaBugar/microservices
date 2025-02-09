@@ -3,7 +3,7 @@
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { DumbbellIcon, HomeIcon, BuildingIcon, Dumbbell, MessageSquare, CreditCard, MapPin, PackageOpen } from "lucide-react";
+import { DumbbellIcon, HomeIcon, BuildingIcon, Dumbbell, CreditCard } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
@@ -14,34 +14,19 @@ const routes = [
     href: '',
   },
   {
-    label: 'Cities',
-    icon: BuildingIcon,
-    href: '/cities',
-  },
-  {
-    label: 'Facilities',
+    label: 'Gym',
     icon: DumbbellIcon,
-    href: '/facilities',
-  },
-  {
-    label: 'Gyms',
-    icon: MapPin,
     href: '/gyms',
   },
   {
-    label: 'Testimonials',
-    icon: MessageSquare,
-    href: '/testimonials',
+    label: 'Paket Gym',
+    icon: BuildingIcon,
+    href: '/paket-gyms',
   },
   {
-    label: 'Subscription Packages',
+    label: 'Membership Gym',
     icon: CreditCard,
-    href: '/subscription-packages',
-  },
-  {
-    label: 'Subscriptions',
-    icon: CreditCard,
-    href: '/subscriptions',
+    href: '/membership-gyms',
   },
 ];
 

@@ -137,7 +137,7 @@ func BuyMembership(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
 	}
 
 	respondJSON(w, http.StatusCreated, map[string]interface{}{
-		"data": map[string]interface{}{
+		"items": map[string]interface{}{
 			"transaction": transaction.TransactionResponse(),
 			"membership":  member,
 		},
