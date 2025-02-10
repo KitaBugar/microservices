@@ -42,7 +42,7 @@ func CreateFacility(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
 	dir, _ := os.Getwd()
 	date := time.Now().Format("20060102")
 	randStr := uuid.New().String()
-	filename := fmt.Sprintf("facility_IMG_%s_%s%s", date, randStr, filepath.Ext(handler.Filename))
+	filename := fmt.Sprintf("IMG_facility_%s_%s%s", date, randStr, filepath.Ext(handler.Filename))
 
 	dirPath := filepath.Join(dir, "public", "facility")
 	if err := os.MkdirAll(dirPath, 0666); err != nil {

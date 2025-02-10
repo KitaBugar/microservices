@@ -31,6 +31,7 @@ type User struct {
 	Password          string             `json:"password"`
 	PhoneNumber       string             `json:"phone_number"`
 	Identify          string             `json:"identify"`
+	IdentifyStatus    string             `gorm:"type:ENUM('success', 'pending', 'cancel')" json:"identify_status"`
 	Gender            Gender             `gorm:"type:ENUM('laki-laki', 'perempuan','')" json:"gender"`
 	Status            Status             `gorm:"type:ENUM('true', 'false')" json:"status"`
 	Role              Role               `gorm:"type:ENUM('admin', 'owner', 'member')" json:"role"`
@@ -54,29 +55,35 @@ func IsValidGender(gender string) string {
 // Response
 
 type UserResponse struct {
-	ID          uint   `json:"id"`
-	Name        string `json:"name"`
-	Avatar      string `json:"avatar"`
-	Email       string `json:"email"`
-	PhoneNumber string `json:"phone_number"`
-	Role        Role   `json:"role"`
-	Gender      Gender `json:"gender"`
-	Status      Status `json:"status"`
-	CreatedAt   string `json:"created_at"`
-	UpdatedAt   string `json:"updated_at"`
+	ID             uint          `json:"id"`
+	Name           string        `json:"name"`
+	Avatar         string        `json:"avatar"`
+	Email          string        `json:"email"`
+	PhoneNumber    string        `json:"phone_number"`
+	Role           Role          `json:"role"`
+	Identify       string        `json:"identify"`
+	IdentifyStatus string        `json:"identify_status"`
+	Gender         Gender        `json:"gender"`
+	Status         Status        `json:"status"`
+	CreatedAt      string        `json:"created_at"`
+	UpdatedAt      string        `json:"updated_at"`
+	MethodPayments MethodPayment `json:"method_payment"`
 }
 
 func (u *User) ToResponse() UserResponse {
 	return UserResponse{
-		ID:          u.ID,
-		Name:        u.Name,
-		Avatar:      u.Avatar,
-		Email:       u.Email,
-		PhoneNumber: u.PhoneNumber,
-		Role:        u.Role,
-		Gender:      u.Gender,
-		Status:      u.Status,
-		CreatedAt:   u.CreatedAt.Format(time.RFC3339),
-		UpdatedAt:   u.UpdatedAt.Format(time.RFC3339),
+		ID:             u.ID,
+		Name:           u.Name,
+		Avatar:         u.Avatar,
+		Email:          u.Email,
+		PhoneNumber:    u.PhoneNumber,
+		Identify:       u.Identify,
+		IdentifyStatus: u.IdentifyStatus,
+		Role:           u.Role,
+		Gender:         u.Gender,
+		Status:         u.Status,
+		CreatedAt:      u.CreatedAt.Format(time.RFC3339),
+		UpdatedAt:      u.UpdatedAt.Format(time.RFC3339),
+		MethodPayments: u.MethodPayments,
 	}
 }

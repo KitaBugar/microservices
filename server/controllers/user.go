@@ -48,8 +48,8 @@ func DetailUser(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
 		respondError(w, http.StatusBadRequest, "Akun tidak ditemukan")
 		return
 	}
-	db.Where("email = ?", email).First(&user)
-	respondJSON(w, http.StatusOK, user.ToResponse())
+	db.Where("email = ?", email).Preload("MethodPayments").First(&user)
+	respondJSON(w, http.StatusOK, utils.ToResponse(r, user.ToResponse(), "Success"))
 }
 
 func UpdateUser(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
@@ -63,7 +63,6 @@ func UpdateUser(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
 		respondError(w, http.StatusBadRequest, "Akun tidak ditemukan")
 		return
 	}
-
 	db.Model(&user).Where("email = ?", email).Updates(&user)
 	uploadedFile, handler, err := r.FormFile("avatar")
 	if err == nil {
@@ -191,4 +190,59 @@ func RegisterUser(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
 	respondJSON(w, http.StatusCreated, response)
 	defer r.Body.Close()
 
+}
+
+func UploadKTP(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
+	user := models.User{}
+	email, ok := r.Context().Value(middleware.EmailKey).(string)
+	if email == "" || !ok {
+		respondError(w, http.StatusBadRequest, "Akun tidak ditemukan")
+		return
+	}
+	uploadedFile, handler, err := r.FormFile("identify")
+	if err == nil {
+		if err != http.ErrMissingFile {
+			if err := r.ParseMultipartForm(2 << 20); err != nil {
+				respondError(w, http.StatusBadRequest, "file melebihi 2mb")
+				return
+			}
+			db.Where("email = ?", email).First(&user)
+			dir, err := os.Getwd()
+			oldKtp := user.Identify
+			if oldKtp != "" {
+				oldKtpPath := filepath.Join(dir, "public/ktp", oldKtp)
+				if _, err := os.Stat(oldKtpPath); err == nil {
+					os.Remove(oldKtpPath)
+				}
+			}
+			defer uploadedFile.Close()
+
+			if err != nil {
+				http.Error(w, err.Error(), http.StatusInternalServerError)
+				return
+			}
+			dateStr := time.Now().Format("20060102")
+			uniqueUUID := uuid.New().String()
+			filename := fmt.Sprintf("IMG_KTP_%s_%s%s", dateStr, uniqueUUID, filepath.Ext(handler.Filename))
+			fileLocation := filepath.Join(dir, "public/ktp", filename)
+			targetFile, err := os.OpenFile(fileLocation, os.O_WRONLY|os.O_CREATE, 0666)
+			if err != nil {
+				http.Error(w, err.Error(), http.StatusInternalServerError)
+				return
+			}
+			defer targetFile.Close()
+			if _, err := io.Copy(targetFile, uploadedFile); err != nil {
+				http.Error(w, err.Error(), http.StatusInternalServerError)
+				return
+			}
+			user.Identify = filename
+			user.IdentifyStatus = "pending"
+			db.Model(&user).Where("email = ?", email).Updates(&user)
+		} else {
+			respondError(w, http.StatusBadRequest, "gambar KTP harus ada")
+			return
+		}
+
+		respondJSON(w, http.StatusCreated, map[string]interface{}{"items": user.ToResponse()})
+	}
 }

@@ -20,6 +20,9 @@ func (a *App) updateUser(w http.ResponseWriter, r *http.Request) {
 func (a *App) deleteUser(w http.ResponseWriter, r *http.Request) {
 	controllers.DeleteUser(a.DB, w, r)
 }
+func (a *App) uploadKTP(w http.ResponseWriter, r *http.Request) {
+	controllers.UploadKTP(a.DB, w, r)
+}
 func (a *App) loginUser(w http.ResponseWriter, r *http.Request) {
 	controllers.LoginUser(a.DB, w, r)
 }

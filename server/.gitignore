@@ -40,3 +40,5 @@
 /public/avatar/*
 /public/image_banner/*
 /public/transaction/*
+/public/ktp/*
+/public/method/*

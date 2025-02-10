@@ -121,11 +121,6 @@ func CreateGym(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
 				return
 			}
 
-			if err != nil {
-				respondError(w, http.StatusBadRequest, err.Error())
-				return
-			}
-
 		}
 
 	}
@@ -148,47 +143,6 @@ func CreateGym(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
 		}
 		membershipCount++
 	}
-	for i := 0; i < membershipCount; i++ {
-		nameKey := fmt.Sprintf("membership_options[%d].name", i)
-		descriptionKey := fmt.Sprintf("membership_options[%d].description", i)
-		priceKey := fmt.Sprintf("membership_options[%d].price", i)
-		featuresKey := fmt.Sprintf("membership_options[%d].features", i)
-
-		name := r.FormValue(nameKey)
-		description := r.FormValue(descriptionKey)
-		priceStr := r.FormValue(priceKey)
-
-		if priceStr == "" {
-			fmt.Println(priceStr)
-			respondError(w, http.StatusBadRequest, fmt.Sprintf("Price is required for membership option %d", i))
-			return
-		}
-
-		featuresJSON := r.FormValue(featuresKey)
-		price, err := strconv.Atoi(priceStr)
-		fmt.Println()
-
-		if err != nil {
-			respondError(w, http.StatusBadRequest, err.Error())
-			return
-		}
-
-		var features []string
-		if err := json.Unmarshal([]byte(featuresJSON), &features); err != nil {
-			http.Error(w, "Invalid JSON format for features", http.StatusBadRequest)
-			return
-		}
-		featuresBytes, _ := json.Marshal(features)
-		membershipOptions = append(membershipOptions, models.MembershipOption{
-			Name:        name,
-			Description: description,
-			Price:       price,
-			Features:    string(featuresBytes),
-			UserID:      user.ID,
-			GymID:       gym.ID,
-		})
-	}
-
 	if len(membershipOptions) > 0 {
 		db.Create(&membershipOptions)
 	}
