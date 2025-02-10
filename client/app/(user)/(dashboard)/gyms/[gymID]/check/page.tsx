@@ -90,7 +90,7 @@ export default function PackagePage() {
   };
 
 
-  async function getDataPackage() {
+  const getDataPackage = useCallback( async () => {
     try {
       const response = await fetch(`${ApiUrl}/gym/${params.gymID}`, {
         headers: {
@@ -103,7 +103,7 @@ export default function PackagePage() {
     } catch (error) {
       console.log(error);
     }
-  }
+  },[params.gymID])
 
 
   async function handleSave (e: React.FormEvent<HTMLFormElement>)  {
@@ -129,7 +129,7 @@ export default function PackagePage() {
   };
   useEffect(() => {
     getDataPackage();
-}, []);
+}, [getDataPackage]);
   const handleDelete = () => {
     if (!deletePackage) return;
 

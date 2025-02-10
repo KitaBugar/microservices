@@ -3,7 +3,7 @@
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { DumbbellIcon, HomeIcon, BuildingIcon, Dumbbell, CreditCard } from "lucide-react";
+import { DumbbellIcon, HomeIcon, BuildingIcon, Dumbbell, CreditCard, Folder, User } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
@@ -19,14 +19,14 @@ const routes = [
     href: '/gyms',
   },
   {
-    label: 'Paket Gym',
-    icon: BuildingIcon,
-    href: '/paket-gyms',
+    label: 'Konfirmasi Membership',
+    icon: Folder,
+    href: '/konfirmasi-membership',
   },
   {
-    label: 'Membership Gym',
-    icon: CreditCard,
-    href: '/membership-gyms',
+    label: 'Pengaturan',
+    icon: User,
+    href: '/pengaturan',
   },
 ];
 

@@ -105,7 +105,7 @@ export default function GymsPage() {
 
   async function getDataGym() {
     try {
-      const response = await fetch(`${ApiUrl}/gym`, {
+      const response = await fetch(`${ApiUrl}/gym/owner`, {
         headers:{
           "Authorization": `Bearer ${getCookie("token")}`
         }
@@ -354,6 +354,7 @@ export default function GymsPage() {
                 <TableHead>Tutup</TableHead>
                 <TableHead>Alamat</TableHead>
                 <TableHead>Detail Paket</TableHead>
+                <TableHead>Check-in Membership</TableHead>
                 <TableHead className="text-right">Actions</TableHead>
               </TableRow>
             </TableHeader>
@@ -372,6 +373,14 @@ export default function GymsPage() {
                     <TableCell>
                     <Link
                       href={`/gyms/${gym.id}`}
+                      className="bg-gray-800 text-white p-2 rounded-sm"
+                    >
+                      Detail Paket
+                    </Link>
+                    </TableCell>
+                    <TableCell>
+                    <Link
+                      href={`/gyms/${gym.id}/check`}
                       className="bg-gray-800 text-white p-2 rounded-sm"
                     >
                       Detail Paket

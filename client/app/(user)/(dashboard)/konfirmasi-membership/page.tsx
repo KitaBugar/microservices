@@ -15,14 +15,6 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Plus, Pencil, Trash2 } from "lucide-react";
-// import {
-//   Dialog,
-//   DialogContent,
-//   DialogHeader,
-//   DialogTitle,
-//   DialogTrigger,
-// } from "@/components/ui/dialog";
 
 const Dialog = dynamic(() => import('@/components/ui/dialog').then((mod) => mod.Dialog));
 const DialogContent = dynamic(() => import('@/components/ui/dialog').then((mod) => mod.DialogContent));
@@ -30,32 +22,10 @@ const DialogHeader = dynamic(() => import('@/components/ui/dialog').then((mod) =
 const DialogTitle = dynamic(() => import('@/components/ui/dialog').then((mod) => mod.DialogTitle));
 const DialogTrigger = dynamic(() => import('@/components/ui/dialog').then((mod) => mod.DialogTrigger));
 
-
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select"
 import { useToast } from "@/hooks/use-toast";
-import { Textarea } from "@/components/ui/textarea";
-import { Label } from "@/components/ui/label";
-import { Checkbox } from "@/components/ui/checkbox";
 import { createGym, editGym } from "@/lib/api/gym";
 import { ApiUrl } from "@/config/config";
 import { getCookie } from "@/lib/utils";
-import { number } from "zod";
 
 type GymData = {
     id: number;
@@ -91,9 +61,6 @@ export default function GymsPage() {
   const [data, setData] = useState<ApiResponse<GymData> | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [facilityQuery, setFacilityQuery] = useState(null);
-  const [regency, setRegency] = useState<ApiResponse<RegencyData> | null>(null);
-  const [province, setProvince] = useState<ApiResponse<ProvinceData> | null>(null);
   const [selectedGym, setSelectedGym] = useState<GymData | null>(null);
   const [deleteGym, setDeleteGym] = useState<GymData | null>(null);
   const { toast } = useToast();
@@ -145,55 +112,6 @@ export default function GymsPage() {
       console.log(error);
     }
   };
-  async function handleEdit (e: React.FormEvent<HTMLFormElement>)  {
-    e.preventDefault();
-    const formData = new FormData(e.currentTarget);
-    const fileInput = e.currentTarget.querySelector('input[type="file"]') as HTMLInputElement;
-    if (fileInput && fileInput.files) {
-      Array.from(fileInput.files).forEach((file, index) => {
-        formData.append(`images[${index}]`, file);
-      });
-    }
-    
-    try {
-      await createGym(formData)
-      await getDataGym();
-      toast({
-        title: `Gym ${selectedGym ? "updated" : "created"} successfully!`,
-        description: `${formData.get("name")} has been ${selectedGym ? "updated" : "added"} to the system.`,
-      });
-      setIsDialogOpen(false);
-      setSelectedGym(null);
-    } catch (error) {
-      console.log(error);
-    }
-  };
-
-  async function getLocation(state:boolean) {
-    if (state) {
-      try {
-        const p = await fetch(`${ApiUrl}/province`, {
-          headers:{
-            "Authorization": `Bearer ${getCookie("token")}`
-          }
-        })
-        const r = await fetch(`${ApiUrl}/regency`, {
-          headers:{
-            "Authorization": `Bearer ${getCookie("token")}`
-          }
-        })
-        const resRegency: ApiResponse<RegencyData> = await r.json()
-        const resProvince: ApiResponse<ProvinceData> = await p.json()
-        setRegency(resRegency)   
-        setProvince(resProvince)   
-        
-      } catch (error) {
-        console.log(error);
-        
-      }
-    }
-    setIsDialogOpen(state)
-  }
   
   useEffect(() => {
     getDataGym()
@@ -214,28 +132,19 @@ export default function GymsPage() {
   return (
     <div className="p-6">
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-3xl font-bold">Gyms</h1>
+        <h1 className="text-3xl font-bold">Konfirmasi Membership</h1>
       </div>
       <Card>
         <CardContent className="p-6">
-          <div className="mb-4">
-            <Input
-              placeholder="Search gyms..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="max-w-sm"
-            />
-          </div>
 
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Gambar</TableHead>
-                <TableHead>Nama Tempat</TableHead>
-                <TableHead>Deskripsi</TableHead>
-                <TableHead>Buka</TableHead>
-                <TableHead>Tutup</TableHead>
-                <TableHead>Alamat</TableHead>
+                <TableHead>Pengguna</TableHead>
+                <TableHead>Nama Gym</TableHead>
+                <TableHead>Paket Membership</TableHead>
+                <TableHead>Harga</TableHead>
+                <TableHead>Bukti Pembayaran</TableHead>
                 <TableHead className="text-right">Actions</TableHead>
               </TableRow>
             </TableHeader>
@@ -251,23 +160,29 @@ export default function GymsPage() {
                     <TableCell>{gym.start_time}</TableCell>
                     <TableCell>{gym.end_time}</TableCell>
                     <TableCell>{gym.address}</TableCell>
-                    <TableCell className="text-right">
+                    <TableCell className="flex justify-end gap-2 text-right">
                       <Button
                         variant="ghost"
-                        size="icon"
+                        className="py-2.5 px-6 rounded-lg text-sm font-medium bg-teal-600 text-white"
                         onClick={() => {
                           setSelectedGym(gym);
                           setIsDialogOpen(true);
                         }}
                       >
-                        Detail Paket
+                        Setuju
                       </Button>
-                      
-                    </TableCell>
+                      <Button
+                        variant="ghost"
+                        className="py-2.5 px-6 rounded-lg text-sm font-medium bg-red-200 text-red-800"
+                        onClick={() => setDeleteGym(gym)}
+                      >
+                        Batalkan
+                      </Button>
+                      </TableCell>
                   </TableRow>
                 ))) :
                 <TableRow>
-                <TableCell colSpan={6}>Tidak ada data gym</TableCell>
+                <TableCell colSpan={6}>Tidak ada data pembayaran</TableCell>
               </TableRow>
                 }
             </TableBody>
