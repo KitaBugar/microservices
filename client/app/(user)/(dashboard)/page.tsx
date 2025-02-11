@@ -1,7 +1,7 @@
 'use client';
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { cities, facilities, gyms, subscriptions, testimonials } from "@/lib/data";
+import { cities, facilities, gyms, testimonials } from "@/lib/data";
 import { Building2, Dumbbell, Users, CreditCard } from "lucide-react";
 
 export default function DashboardPage() {

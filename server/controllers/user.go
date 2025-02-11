@@ -31,7 +31,7 @@ func CreateUser(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
 		Email:       r.FormValue("email"),
 		PhoneNumber: r.FormValue("phone_number"),
 		Password:    hashPassword,
-		Role:        models.Admin,
+		Role:        "admin",
 	}
 
 	db.Create(&user)
@@ -167,12 +167,13 @@ func RegisterUser(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
 
 	hashPassword, _ := utils.HashPassword(r.FormValue("password"))
 	user := models.User{
-		Name:        r.FormValue("name"),
-		Email:       r.FormValue("email"),
-		PhoneNumber: r.FormValue("phone_number"),
-		Password:    hashPassword,
-		Role:        models.Member,
-		Status:      models.False,
+		Name:           r.FormValue("name"),
+		Email:          r.FormValue("email"),
+		PhoneNumber:    r.FormValue("phone_number"),
+		Password:       hashPassword,
+		Role:           r.FormValue("role"),
+		IdentifyStatus: nil,
+		Status:         models.False,
 	}
 
 	if err := db.Where("email = ?", user.Email).First(&user).Error; err == nil {
@@ -236,7 +237,8 @@ func UploadKTP(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
 				return
 			}
 			user.Identify = filename
-			user.IdentifyStatus = "pending"
+			s := "pending"
+			user.IdentifyStatus = &s
 			db.Model(&user).Where("email = ?", email).Updates(&user)
 		} else {
 			respondError(w, http.StatusBadRequest, "gambar KTP harus ada")

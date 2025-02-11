@@ -86,6 +86,7 @@ func BuyMembership(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
 			Status:             "false",
 		}
 		db.Create(&newMember)
+		transaction.MembershipID = int(newMember.ID)
 	} else {
 		db.Model(&member).Updates(map[string]interface{}{
 			"card_number": nil,
@@ -93,6 +94,7 @@ func BuyMembership(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
 			"end_date":    endDateP,
 			"status":      "false",
 		})
+		transaction.MembershipID = int(member.ID)
 	}
 	uploadedFile, handler, err := r.FormFile("photo_transaction")
 	if err == nil || uploadedFile == nil {

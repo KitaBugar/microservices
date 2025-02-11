@@ -4,7 +4,6 @@ import Link from 'next/link'
 import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm } from 'react-hook-form'
-import { toast } from 'sonner'
 
 import {
   Form,
@@ -25,7 +24,8 @@ import {
 import { Input } from '@/components/ui/input'
 import { PasswordInput } from '@/components/ui/password-input'
 import { login } from '@/lib/api/authentication'
-import { cookies } from 'next/headers'
+import { ToastAction } from '@/components/ui/toast'
+import { useToast } from '@/hooks/use-toast'
 
 
 const formSchema = z.object({
@@ -44,22 +44,22 @@ export default function LoginPreview() {
       password: '',
     },
   })
-
+  
+  const { toast } = useToast()
   async function onSubmit(values: z.infer<typeof formSchema>) {
     try {
-      const res = await login(values)      
-     if (res) {
+      const res = await login(values) 
+      if (res instanceof Error) {
+        throw res.message
+    }     
       window.location.href = "/"
-     }
-      toast(
-        <pre className="mt-2 w-[340px] rounded-md bg-slate-950 p-4">
-          <code className="text-white"></code>
-        </pre>,
-      )
+     
     } catch (error) {
       console.error('Form submission error', error)
-      toast.error('Failed to submit the form. Please try again.')
-    }
+      toast({
+        title: "Email atau Password salah",
+      })
+    } 
   }
 
   return (
@@ -68,7 +68,7 @@ export default function LoginPreview() {
         <CardHeader>
           <CardTitle className="text-2xl">Login</CardTitle>
           <CardDescription>
-            Masukkan Email dan password untul login ke akunmu.
+            Masukkan Email dan password untuk login ke akunmu.
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -128,7 +128,7 @@ export default function LoginPreview() {
           </Form>
           <div className="mt-4 text-center text-sm">
             Tidak punya akun?{' '}
-            <Link href="#" className="underline">
+            <Link href="/signup" className="underline">
               Sign up
             </Link>
           </div>

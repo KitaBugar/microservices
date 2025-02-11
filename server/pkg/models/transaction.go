@@ -19,6 +19,7 @@ type Transaction struct {
 	AccountNumber      string `gorm:"type:varchar(30);not null"`
 	Status             string `gorm:"type:ENUM('success', 'pending', 'cancel')"`
 	Price              int    `gorm:"not null"`
+	MembershipID       int    `json:"membership"`
 	MembershipOptionID int    `json:"membership_option"`
 	UserID             int    `json:"user"`
 	GymID              int    `json:"gym"`
@@ -32,7 +33,8 @@ type TransactionResponse struct {
 	AccountNumber      string           `gorm:"type:varchar(30);not null"`
 	Status             string           `gorm:"type:ENUM('success', 'pending', 'cancel')"`
 	Price              int              `gorm:"not null"`
-	MembershipOptionID int              `json:"membership_option"`
+	MembershipID       int              `json:"membership_option"`
+	MembershipOptionID int              `json:"membership"`
 	UserID             int              `json:"user"`
 	GymID              int              `json:"gym"`
 	gorm.Model         `json:"-"`
@@ -48,6 +50,7 @@ func (u *Transaction) TransactionResponse() *TransactionResponse {
 		AccountNumber:      u.AccountNumber,
 		Status:             u.Status,
 		Price:              u.Price,
+		MembershipID:       u.MembershipID,
 		MembershipOptionID: u.MembershipOptionID,
 		UserID:             u.UserID,
 		GymID:              u.GymID,

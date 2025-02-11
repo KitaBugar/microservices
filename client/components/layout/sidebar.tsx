@@ -3,7 +3,7 @@
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { DumbbellIcon, HomeIcon, BuildingIcon, Dumbbell, CreditCard, Folder, User } from "lucide-react";
+import { DumbbellIcon, HomeIcon, BuildingIcon, Dumbbell, CreditCard, Folder, User, LogOut } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
@@ -27,6 +27,11 @@ const routes = [
     label: 'Pengaturan',
     icon: User,
     href: '/pengaturan',
+  },
+  {
+    label: 'Logout',
+    icon: LogOut,
+    href: '/logout',
   },
 ];
 

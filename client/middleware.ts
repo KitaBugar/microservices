@@ -3,7 +3,7 @@ import type { NextRequest } from "next/server";
 
 
 const protectedRoutes = ["/", "/dashboard"];
-const publicRoutes = ['/login', '/signup','/*']
+const publicRoutes = ['/login','/*']
 export default async function middleware(req: NextRequest) {
   const token = req.cookies.get("token")?.value;
   const path = req.nextUrl.pathname

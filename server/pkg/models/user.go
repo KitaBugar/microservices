@@ -31,10 +31,10 @@ type User struct {
 	Password          string             `json:"password"`
 	PhoneNumber       string             `json:"phone_number"`
 	Identify          string             `json:"identify"`
-	IdentifyStatus    string             `gorm:"type:ENUM('success', 'pending', 'cancel')" json:"identify_status"`
+	IdentifyStatus    *string            `gorm:"type:ENUM('success', 'pending', 'cancel')" json:"identify_status"`
 	Gender            Gender             `gorm:"type:ENUM('laki-laki', 'perempuan','')" json:"gender"`
 	Status            Status             `gorm:"type:ENUM('true', 'false')" json:"status"`
-	Role              Role               `gorm:"type:ENUM('admin', 'owner', 'member')" json:"role"`
+	Role              string             `gorm:"type:ENUM('admin', 'owner', 'member')" json:"role"`
 	Gyms              []Gym              `json:"gym_id"`
 	Memberships       []Membership       `json:"membership"`
 	MembershipOptions []MembershipOption `json:"membership_option"`
@@ -60,9 +60,9 @@ type UserResponse struct {
 	Avatar         string        `json:"avatar"`
 	Email          string        `json:"email"`
 	PhoneNumber    string        `json:"phone_number"`
-	Role           Role          `json:"role"`
+	Role           string        `json:"role"`
 	Identify       string        `json:"identify"`
-	IdentifyStatus string        `json:"identify_status"`
+	IdentifyStatus *string       `json:"identify_status"`
 	Gender         Gender        `json:"gender"`
 	Status         Status        `json:"status"`
 	CreatedAt      string        `json:"created_at"`

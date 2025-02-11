@@ -7,16 +7,15 @@ import (
 )
 
 type MembershipOption struct {
-	ID           uint   `gorm:"primaryKey" json:"id"`
-	Name         string `gorm:"type:varchar(40)" json:"name"`
-	Description  string `json:"description"`
-	Features     string `gorm:"type:json" json:"features"`
-	Price        int    `json:"price"`
-	GymID        uint   `json:"gym"`
-	UserID       uint   `json:"user"`
-	Memberships  []Membership
-	Transactions []Transaction
-	gorm.Model   `json:"-"`
+	ID          uint   `gorm:"primaryKey" json:"id"`
+	Name        string `gorm:"type:varchar(40)" json:"name"`
+	Description string `json:"description"`
+	Features    string `gorm:"type:json" json:"features"`
+	Price       int    `json:"price"`
+	GymID       uint   `json:"gym"`
+	UserID      uint   `json:"user"`
+	Memberships []Membership
+	gorm.Model  `json:"-"`
 }
 
 // REsponse

@@ -71,7 +71,7 @@ export default function GymsPage() {
 
   async function getDataGym() {
     try {
-      const response = await fetch(`${ApiUrl}/gym`, {
+      const response = await fetch(`${ApiUrl}/`, {
         headers:{
           "Authorization": `Bearer ${getCookie("token")}`
         }
@@ -109,7 +109,7 @@ export default function GymsPage() {
       setIsDialogOpen(false);
       setSelectedGym(null);
     } catch (error) {
-      console.log(error);
+      throw error
     }
   };
   

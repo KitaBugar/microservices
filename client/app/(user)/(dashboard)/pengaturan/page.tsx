@@ -31,6 +31,7 @@ import { createMethodPayment, getMethod, getUser, updateUser, uploadKTP } from "
 import { AspectRatio } from "@/components/ui/aspect-ratio"
 import Image from "next/image"
 import { ApiUrl, Url } from "@/config/config"
+import { toast, useToast } from "@/hooks/use-toast"
 
 type MethodPaymentData = {
   id: number;
@@ -58,6 +59,8 @@ export default function Setting() {
   const [account, setAccount] = useState<UserData | null>(null)
   const [method, setMethod] = useState<MethodData[] | null>(null);
   const ktpInputRef = useRef<HTMLInputElement>(null);
+  const { toast } = useToast()
+  
   async function getData (){
     try {
      const resUser = await getUser()
@@ -77,6 +80,9 @@ export default function Setting() {
     try {
       const response = await updateUser(formData)
       getData()
+      toast({
+        title: "Berhasil mengubah profile",
+      })   
     } catch (error) {
       
     }
@@ -101,8 +107,9 @@ export default function Setting() {
     try {
       const formData = new FormData(e.currentTarget);
       await createMethodPayment(formData)
-      console.log("halo");
-      
+      toast({
+        title: "Berhasil menambahkan metode pembayaran",
+      })    
     } catch (error) {
       console.log(error);
     }

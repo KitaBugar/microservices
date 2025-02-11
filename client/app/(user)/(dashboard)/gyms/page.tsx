@@ -203,7 +203,6 @@ export default function GymsPage() {
 
   const handleDelete = () => {
     if (!deleteGym) return;
-
     toast({
       title: "Gym deleted successfully!",
       description: `${deleteGym.name} has been removed from the system.`,
