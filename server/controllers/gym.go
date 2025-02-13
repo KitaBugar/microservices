@@ -195,3 +195,28 @@ func DeleteGym(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
 	}
 	defer r.Body.Close()
 }
+
+func GetCheckInGym(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
+	gym := models.Gym{}
+	// m := []models.Membership{}
+
+	decoder := json.NewDecoder(r.Body)
+	if err := decoder.Decode(&gym); err != nil {
+		respondError(w, http.StatusBadRequest, err.Error())
+		return
+	}
+	defer r.Body.Close()
+}
+func CreateCheckInGym(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	gID, err := strconv.Atoi(vars["gymID"])
+	if err != nil {
+		respondError(w, http.StatusBadRequest, err.Error())
+	}
+	g := &models.Gym{}
+	db.First(&g, gID)
+	m := models.CheckIn{}
+	db.Model(&m).Create(m)
+	respondJSON(w, http.StatusOK, g)
+	defer r.Body.Close()
+}

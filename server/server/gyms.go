@@ -20,3 +20,9 @@ func (a *App) updateGym(w http.ResponseWriter, r *http.Request) {
 func (a *App) deleteGym(w http.ResponseWriter, r *http.Request) {
 	controllers.DeleteGym(a.DB, w, r)
 }
+func (a *App) getCheckInGym(w http.ResponseWriter, r *http.Request) {
+	controllers.GetCheckInGym(a.DB, w, r)
+}
+func (a *App) createCheckInGym(w http.ResponseWriter, r *http.Request) {
+	controllers.CreateCheckInGym(a.DB, w, r)
+}

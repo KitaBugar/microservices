@@ -31,107 +31,81 @@ func GetAllGymOwner(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
 	respondJSON(w, http.StatusOK, utils.ToResponse(r, responses, "Success"))
 }
 func GetAllTransaction(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
+	user := &models.User{}
+	email, ok := r.Context().Value(middleware.EmailKey).(string)
+	if !ok || email == "" {
+		respondError(w, http.StatusUnauthorized, "Akun tidak ditemukan")
+		return
+	}
 
+	// Ambil data user berdasarkan email
+	if err := db.Where("email = ?", email).First(&user).Error; err != nil {
+		respondError(w, http.StatusNotFound, "User tidak ditemukan")
+		return
+	}
+
+	// Ambil transaksi membership berdasarkan gym yang dimiliki owner
+	var transactions []models.Transaction
+	err := db.Raw(`
+				SELECT u.*
+				FROM transactions t
+				JOIN memberships m ON t.membership_id = m.id
+				JOIN gyms g ON m.gym_id = g.id
+				JOIN users u ON t.user_id = u.id
+				WHERE t.status = 'pending'
+				AND m.status = 'false'
+				AND g.user_id = ?
+				AND t.created_at = (
+					SELECT MAX(t2.created_at)
+					FROM transactions t2
+					WHERE t2.membership_id = t.membership_id
+				)
+				ORDER BY t.membership_id;
+			`, user.ID).Scan(&transactions).Error
+	if err != nil {
+		respondError(w, http.StatusInternalServerError, "Gagal mengambil data transaksi")
+		return
+	}
+
+	var data []models.TransactionResponse
+
+	for _, tr := range transactions {
+		data = append(data, *tr.TransactionResponse())
+
+	}
+
+	respondJSON(w, http.StatusOK, utils.Response{
+		Items:   transactions,
+		Message: "Success get transactions",
+	})
 }
 func HandleTransaction(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
-	owner := &models.User{}
-	gym := &models.Gym{}
-	transaction := &models.Transaction{}
-	membership := &models.Membership{}
-	packageData := &models.MembershipOption{}
-
-	// Ambil email dari context (Owner yang login)
-	email, ok := r.Context().Value(middleware.EmailKey).(string)
-	if email == "" || !ok {
-		respondError(w, http.StatusBadRequest, "Akun tidak ditemukan")
-		return
+	tID, _ := utils.ConvertStringToNumber(r.FormValue("transaction_id"))
+	mID, _ := utils.ConvertStringToNumber(r.FormValue("membership_id"))
+	acc := r.FormValue("confirmation")
+	t := &models.Transaction{
+		ID: tID,
 	}
-
-	// Cari owner berdasarkan email
-	if err := db.Where("email = ?", email).First(&owner).Error; err != nil {
-		respondError(w, http.StatusNotFound, "Owner tidak ditemukan")
-		return
+	m := &models.Membership{
+		ID: uint(mID),
 	}
-
-	// Cari gym yang dimiliki oleh owner ini
-	if err := db.Where("owner_id = ?", owner.ID).First(&gym).Error; err != nil {
-		respondError(w, http.StatusNotFound, "Gym tidak ditemukan")
-		return
-	}
-
-	// Ambil user_id dan package_id dari form input
-	userID := r.FormValue("user_id")
-	packageID := r.FormValue("membership_option_id")
-	if userID == "" || packageID == "" {
-		respondError(w, http.StatusBadRequest, "User ID dan Paket Membership diperlukan")
-		return
-	}
-
-	// Cek apakah paket membership valid untuk gym ini
-	if err := db.Where("id = ? AND gym_id = ?", packageID, gym.ID).First(&packageData).Error; err != nil {
-		respondError(w, http.StatusNotFound, "Paket membership tidak ditemukan untuk gym ini")
-		return
-	}
-
-	// Cari transaksi berdasarkan user_id, gym_id, dan status pending
-	if err := db.Where("user_id = ? AND gym_id = ? AND package_id = ? AND status = ?", userID, gym.ID, packageID, "pending").First(&transaction).Error; err != nil {
-		respondError(w, http.StatusNotFound, "Tidak ada transaksi yang perlu dikonfirmasi untuk user ini")
-		return
-	}
-
-	// Ambil membership terkait transaksi
-	if err := db.Where("id = ?", transaction.MembershipID).First(&membership).Error; err != nil {
-		respondError(w, http.StatusNotFound, "Membership tidak ditemukan")
-		return
-	}
-
-	// Ambil aksi dari form input
-	action := r.FormValue("action") // "accept" atau "reject"
-
-	if action == "accept" {
-		// Jika diterima, ubah status transaksi dan aktifkan membership dengan paket
-		transaction.Status = "success"
-		membership.Status = "active"
-
-		db.Save(&transaction)
-		db.Save(&membership)
-
-		respondJSON(w, http.StatusOK, map[string]interface{}{
-			"message":           "Membership berhasil diaktifkan",
-			"user_id":           userID,
-			"status":            transaction.Status,
-			"membership_status": membership.Status,
-			"package_name":      packageData.Name,
+	db.Find(&t).Updates(models.Transaction{
+		Status: acc,
+	})
+	if acc == "success" {
+		db.Find(&m).Updates(models.Transaction{
+			Status: "true",
 		})
-		return
-
-	} else if action == "cancel" {
-		// Jika ditolak, ubah status transaksi lama dan buat transaksi baru
-		transaction.Status = "cancel"
-		db.Save(&transaction)
-
-		newTransaction := models.Transaction{
-			UserID:             transaction.UserID,
-			GymID:              transaction.GymID,
-			MembershipOptionID: transaction.MembershipID,
-			MembershipID:       transaction.MembershipID,
-			Status:             "pending",
-		}
-
-		if err := db.Create(&newTransaction).Error; err != nil {
-			respondError(w, http.StatusInternalServerError, "Gagal membuat transaksi baru")
-			return
-		}
-
-		respondJSON(w, http.StatusOK, map[string]interface{}{
-			"message":            "Transaksi ditolak. User dapat mengajukan ulang dengan memilih paket lagi.",
-			"user_id":            userID,
-			"package_id":         packageID,
-			"new_transaction_id": newTransaction.ID,
+	} else {
+		db.Find(&m).Updates(models.Transaction{
+			Status: "false",
 		})
-		return
 	}
-
-	// Jika aksi tidak valid
-	respondError(w, http.StatusBadRequest, "Aksi tidak valid")
+	res := make(map[string]interface{})
+	res["transaction"] = t
+	res["membership"] = m
+	respondJSON(w, http.StatusOK, utils.Response{
+		Message: "Successful confirmation the transaction",
+		Items:   res,
+	})
 }

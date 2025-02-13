@@ -71,6 +71,7 @@ func (a *App) Initialize(config *config.Config) {
 		&models.Transaction{},
 		&models.Method{},
 		&models.MethodPayment{},
+		&models.CheckIn{},
 	)
 }
 
@@ -117,6 +118,9 @@ func (a *App) setRouters() {
 	a.Update(apiRouter, "/membership", a.updateGym)
 	a.Delete(apiRouter, "/membership", a.deleteGym)
 
+	a.Get(apiRouter, "/membership/{gymID}/check", a.createCheckInGym)
+	a.Post(apiRouter, "/membership/{gymID}/check", a.getCheckInGym)
+
 	// Location
 	a.Get(apiRouter, "/province", a.getAllProvince)
 	a.Get(apiRouter, "/province/{provinceID}", a.provinceById)
@@ -139,8 +143,7 @@ func (a *App) setRouters() {
 
 	// Transaction
 	a.Get(apiRouter, "/transaction", a.getAllTransaction)
-	a.Post(apiRouter, "/transaction", a.handleTransaction)
-	a.Update(apiRouter, "/transaction", a.updateMethodPayment)
+	a.Update(apiRouter, "/transaction", a.handleTransaction)
 }
 
 func (a *App) Get(apiRouter *mux.Router, path string, f func(w http.ResponseWriter, r *http.Request)) {

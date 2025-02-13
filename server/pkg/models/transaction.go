@@ -27,14 +27,14 @@ type Transaction struct {
 }
 
 type TransactionResponse struct {
-	ID                 int              `gorm:"primaryKey"`
-	Image              ImageTransaction `gorm:"type:varchar(100);not null"`
-	MethodName         string           `gorm:"type:varchar(50);not null"`
-	AccountNumber      string           `gorm:"type:varchar(30);not null"`
-	Status             string           `gorm:"type:ENUM('success', 'pending', 'cancel')"`
-	Price              int              `gorm:"not null"`
-	MembershipID       int              `json:"membership_option"`
-	MembershipOptionID int              `json:"membership"`
+	ID                 int              `gorm:"primaryKey" json:"id"`
+	Image              ImageTransaction `gorm:"type:varchar(100);not null" json:"image"`
+	MethodName         string           `gorm:"type:varchar(50);not null" json:"method_name"`
+	AccountNumber      string           `gorm:"type:varchar(30);not null" json:"account_number"`
+	Status             string           `gorm:"type:ENUM('success', 'pending', 'cancel')" json:"status"`
+	Price              int              `gorm:"not null" json:"price"`
+	MembershipID       int              `json:"membership"`
+	MembershipOptionID int              `json:"membership_option"`
 	UserID             int              `json:"user"`
 	GymID              int              `json:"gym"`
 	gorm.Model         `json:"-"`
