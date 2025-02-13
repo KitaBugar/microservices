@@ -32,7 +32,7 @@ const routes = [
 
 export function SidebarAdmin() {
   const pathname = usePathname();
-
+  
   return (
     <div className="space-y-4 py-4 flex flex-col h-full bg-blue-900 text-white">
       <div className="px-3 py-2 flex-1">

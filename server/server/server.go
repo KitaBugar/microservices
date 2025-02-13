@@ -96,6 +96,10 @@ func (a *App) setRouters() {
 	a.Delete(apiRouter, "/user", a.deleteUser)
 	a.Post(apiRouter, "/user/ktp", a.uploadKTP)
 
+	// Confirmation KTP
+	a.Get(apiRouter, "/user/ktp/confirmation", a.getAllKtp)
+	a.Update(apiRouter, "/user/ktp/confirmation", a.updateConfirmKtp)
+
 	// Gym
 	a.Get(apiRouter, "/gym/owner", a.getAllGymOwner)
 
@@ -144,6 +148,7 @@ func (a *App) setRouters() {
 	// Transaction
 	a.Get(apiRouter, "/transaction", a.getAllTransaction)
 	a.Update(apiRouter, "/transaction", a.handleTransaction)
+
 }
 
 func (a *App) Get(apiRouter *mux.Router, path string, f func(w http.ResponseWriter, r *http.Request)) {
