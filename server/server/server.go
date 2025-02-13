@@ -118,8 +118,8 @@ func (a *App) setRouters() {
 	a.Update(apiRouter, "/membership", a.updateGym)
 	a.Delete(apiRouter, "/membership", a.deleteGym)
 
-	a.Get(apiRouter, "/membership/{gymID}/check", a.createCheckInGym)
-	a.Post(apiRouter, "/membership/{gymID}/check", a.getCheckInGym)
+	a.Get(apiRouter, "/membership/{gymID}/check", a.getCheckInGym)
+	a.Post(apiRouter, "/membership/{gymID}/check", a.createCheckInGym)
 
 	// Location
 	a.Get(apiRouter, "/province", a.getAllProvince)

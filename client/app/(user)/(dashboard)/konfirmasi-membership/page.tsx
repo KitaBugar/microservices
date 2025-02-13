@@ -38,16 +38,6 @@ type GymData = {
     start_time: string;
     end_time: string;
 }
-type ProvinceData = {
-    id: string;
-    code: string;
-    name: string;
-}
-type RegencyData = {
-    id: string;
-    code: string;
-    name: string;
-}
 
 type ApiResponse<T> = {
   current_page: string;
@@ -69,15 +59,17 @@ export default function GymsPage() {
     gym.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  async function getDataGym() {
+  async function getDataConfirmation() {
     try {
-      const response = await fetch(`${ApiUrl}/`, {
+      const response = await fetch(`${ApiUrl}/transaction`, {
         headers:{
           "Authorization": `Bearer ${getCookie("token")}`
         }
       })
       const resGym: ApiResponse<GymData> = await response.json()
       setData(resGym)   
+      console.log(resGym);
+      
       
     } catch (error) {
       console.log(error);
@@ -85,8 +77,7 @@ export default function GymsPage() {
     }
   }
 
-
-  async function handleSave (e: React.FormEvent<HTMLFormElement>)  {
+  async function handleConfirmation (e: React.FormEvent<HTMLFormElement>)  {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
     const fileInput = e.currentTarget.querySelector('input[type="file"]') as HTMLInputElement;
@@ -101,7 +92,7 @@ export default function GymsPage() {
       }else{
         await createGym(formData)
       }
-      await getDataGym();
+      await getDataConfirmation();
       toast({
         title: `Gym ${selectedGym ? "updated" : "created"} successfully!`,
         description: `${formData.get("name")} has been ${selectedGym ? "updated" : "added"} to the system.`,
@@ -114,7 +105,7 @@ export default function GymsPage() {
   };
   
   useEffect(() => {
-    getDataGym()
+    getDataConfirmation()
   },[])
 
 

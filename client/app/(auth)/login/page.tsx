@@ -51,7 +51,7 @@ export default function LoginPreview() {
       const res = await login(values) 
       if (res instanceof Error) {
         throw res.message
-    }     
+      }     
       window.location.href = "/"
      
     } catch (error) {

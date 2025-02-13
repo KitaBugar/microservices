@@ -11,7 +11,7 @@ const routes = [
   {
     label: 'Dashboard',
     icon: HomeIcon,
-    href: '',
+    href: '/',
   },
   {
     label: 'Gym',

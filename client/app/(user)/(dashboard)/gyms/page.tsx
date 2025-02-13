@@ -219,7 +219,7 @@ export default function GymsPage() {
           <DialogTrigger asChild>
             <Button>
               <Plus className="h-4 w-4 mr-2" />
-              Add Gym
+              Tambah Gym
             </Button>
           </DialogTrigger>
           <DialogContent className="max-w-2xl">
@@ -372,7 +372,7 @@ export default function GymsPage() {
                     <TableCell>
                     <Link
                       href={`/gyms/${gym.id}`}
-                      className="bg-gray-800 text-white p-2 rounded-sm"
+                      className="bg-gray-800 text-white p-2.5 rounded-lg"
                     >
                       Detail Paket
                     </Link>
@@ -380,9 +380,9 @@ export default function GymsPage() {
                     <TableCell>
                     <Link
                       href={`/gyms/${gym.id}/check`}
-                      className="bg-gray-800 text-white p-2 rounded-sm"
+                      className="bg-blue-800 text-white p-2.5 rounded-lg"
                     >
-                      Detail Paket
+                      Check-in Membership
                     </Link>
                     </TableCell>
                     <TableCell className="text-right">

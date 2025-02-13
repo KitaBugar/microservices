@@ -23,12 +23,12 @@ const (
 )
 
 type User struct {
-	gorm.Model
+	gorm.Model        `json:"-"`
 	ID                uint               `gorm:"primaryKey" json:"id"`
 	Name              string             `json:"name"`
 	Avatar            string             `json:"avatar"`
 	Email             string             `db:"unique;not null" json:"email"`
-	Password          string             `json:"password"`
+	Password          string             `json:"-"`
 	PhoneNumber       string             `json:"phone_number"`
 	Identify          string             `json:"identify"`
 	IdentifyStatus    *string            `gorm:"type:ENUM('success', 'pending', 'cancel')" json:"identify_status"`

@@ -126,8 +126,8 @@ func DeleteUser(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
 func LoginUser(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
 
 	type UserToken struct {
-		User  models.User
-		Token string `json:"token"`
+		User  models.User `json:"user"`
+		Token string      `json:"token"`
 	}
 
 	user := &models.User{
@@ -158,7 +158,8 @@ func LoginUser(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
 		userToken := &UserToken{}
 		token := utils.MakeTokenFromEmail(db, user.Email)
 		userToken.Token = token
-		respondJSON(w, http.StatusOK, userToken)
+		userToken.User = *user
+		respondJSON(w, http.StatusOK, utils.ToResponse(r, userToken, "success"))
 	}
 
 }

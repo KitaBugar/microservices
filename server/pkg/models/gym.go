@@ -47,8 +47,8 @@ type GymResponse struct {
 	UserID            uint               `json:"user_id"`
 	CreatedAt         string             `json:"created_at"`
 	UpdatedAt         string             `json:"updated_at"`
-	MembershipOptions []MembershipOption `json:"membership_options"`
-	Facilities        []*Facility        `json:"facilities"`
+	MembershipOptions []MembershipOption `json:"membership_option"`
+	Facilities        []*Facility        `json:"facility"`
 }
 
 func (u *Gym) ToResponse() *GymResponse {

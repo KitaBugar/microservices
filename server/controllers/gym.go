@@ -197,26 +197,52 @@ func DeleteGym(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
 }
 
 func GetCheckInGym(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
-	gym := models.Gym{}
-	// m := []models.Membership{}
-
-	decoder := json.NewDecoder(r.Body)
-	if err := decoder.Decode(&gym); err != nil {
+	g := models.Gym{}
+	m := []models.CheckIn{}
+	vars := mux.Vars(r)
+	gID, err := strconv.Atoi(vars["gymID"])
+	if err != nil {
 		respondError(w, http.StatusBadRequest, err.Error())
 		return
 	}
-	defer r.Body.Close()
+	db.First(&g, gID)
+	res := db.Preload("Membership.User").Preload("Membership.MembershipOption").Find(&m).Error
+	if res != nil {
+		respondError(w, http.StatusBadRequest, "Membership tidak ada")
+		return
+	}
+
+	respondJSON(w, http.StatusOK, utils.Response{
+		Items: m,
+	})
 }
+
 func CreateCheckInGym(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
+	code := r.FormValue("card_number")
 	gID, err := strconv.Atoi(vars["gymID"])
 	if err != nil {
 		respondError(w, http.StatusBadRequest, err.Error())
 	}
 	g := &models.Gym{}
+	m := models.Membership{}
+	res := db.Preload("User").Model(&m).Where("gym_id = ?", gID).Where("card_number = ?", code).First(&m)
+	if res.Error != nil {
+		respondError(w, http.StatusBadRequest, "Membership tidak ada dalam data  gym")
+		return
+	}
+	now := time.Now()
+	mDate := m.EndDate
+	if now.After(mDate) {
+		respondError(w, http.StatusBadRequest, "Membership sudah expired")
+		return
+	}
 	db.First(&g, gID)
-	m := models.CheckIn{}
-	db.Model(&m).Create(m)
-	respondJSON(w, http.StatusOK, g)
-	defer r.Body.Close()
+	c := &models.CheckIn{
+		Name:         m.User.Name,
+		MembershipID: m.ID,
+		GymID:        g.ID,
+	}
+	db.Create(&c)
+	respondJSON(w, http.StatusOK, m.MembershipResponse())
 }
