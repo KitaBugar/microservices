@@ -29,7 +29,7 @@ export async function login(formData: z.infer<typeof formSchema>) {
     const data = await response.json()
     const expires = new  Date()
     expires.setTime(expires.getTime() + 15 * 24 * 60 * 60 * 1000);
-    document.cookie = `token=${data.token};expires=${expires.toUTCString()};path=/`;
+    document.cookie = `token=${data.items.token};expires=${expires.toUTCString()};path=/`;
     return response.ok
    } catch (error) {
        console.log(error);

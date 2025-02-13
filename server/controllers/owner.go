@@ -38,16 +38,14 @@ func GetAllTransaction(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Ambil data user berdasarkan email
 	if err := db.Where("email = ?", email).First(&user).Error; err != nil {
 		respondError(w, http.StatusNotFound, "User tidak ditemukan")
 		return
 	}
 
-	// Ambil transaksi membership berdasarkan gym yang dimiliki owner
 	var transactions []models.Transaction
-	err := db.Raw(`
-				SELECT u.*
+	err := db.Preload("User").Raw(`
+				SELECT t.*
 				FROM transactions t
 				JOIN memberships m ON t.membership_id = m.id
 				JOIN gyms g ON m.gym_id = g.id
@@ -67,15 +65,17 @@ func GetAllTransaction(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var data []models.TransactionResponse
+	for i := range transactions {
+		db.Preload("User").Preload("Gym").Preload("MembershipOption").First(&transactions[i], transactions[i].ID)
+	}
 
+	var data []models.TransactionResponse
 	for _, tr := range transactions {
 		data = append(data, *tr.TransactionResponse())
-
 	}
 
 	respondJSON(w, http.StatusOK, utils.Response{
-		Items:   transactions,
+		Items:   data,
 		Message: "Success get transactions",
 	})
 }

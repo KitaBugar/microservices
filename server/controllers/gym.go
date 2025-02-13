@@ -176,6 +176,35 @@ func DetailGym(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
 
 func UpdateGym(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
 	gym := models.Gym{}
+	vars := mux.Vars(r)
+	str, ok := vars["gymID"]
+	if !ok {
+		respondError(w, http.StatusBadRequest, "Missing gym id")
+		return
+	}
+
+	gymID, err := strconv.Atoi(str)
+	if err != nil {
+		respondError(w, http.StatusBadRequest, "Invalid gym id")
+		return
+	}
+
+	if err := db.Where("id = ?", gymID).First(&gym).Error; err != nil {
+		respondError(w, http.StatusNotFound, "Gym not found")
+		return
+	}
+
+	city, _ := strconv.Atoi(r.FormValue("city_id"))
+	prov, _ := strconv.Atoi(r.FormValue("province_id"))
+	gym.Name = r.FormValue("name")
+	gym.Description = r.FormValue("description")
+	gym.ProvinceID = prov
+	gym.CityID = city
+
+	if err := db.Save(&gym).Error; err != nil {
+		respondError(w, http.StatusInternalServerError, "Failed to update gym")
+		return
+	}
 
 	decoder := json.NewDecoder(r.Body)
 	if err := decoder.Decode(&gym); err != nil {
@@ -186,14 +215,18 @@ func UpdateGym(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
 }
 
 func DeleteGym(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
-	gym := models.Gym{}
-
-	decoder := json.NewDecoder(r.Body)
-	if err := decoder.Decode(&gym); err != nil {
-		respondError(w, http.StatusBadRequest, err.Error())
+	vars := mux.Vars(r)
+	str, ok := vars["gymID"]
+	if !ok {
+		respondError(w, http.StatusBadRequest, "Missing gym id")
 		return
 	}
-	defer r.Body.Close()
+	gID, _ := strconv.Atoi(str)
+	gym := models.Gym{
+		ID: uint(gID),
+	}
+	db.Delete(&gym)
+	respondJSON(w, http.StatusOK, "Berhasil menghapus data")
 }
 
 func GetCheckInGym(db *gorm.DB, w http.ResponseWriter, r *http.Request) {

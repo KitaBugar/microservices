@@ -25,19 +25,43 @@ const DialogTrigger = dynamic(() => import('@/components/ui/dialog').then((mod) 
 import { useToast } from "@/hooks/use-toast";
 import { createGym, editGym } from "@/lib/api/gym";
 import { ApiUrl } from "@/config/config";
-import { getCookie } from "@/lib/utils";
+import { formatPrice, getCookie } from "@/lib/utils";
+import Link from "next/link";
+import Image from "next/image";
 
-type GymData = {
+type TransactionData = {
     id: number;
     name: string;
-    description: string;
-    address: string;
-    images: string;
-    city_id: string;
-    province_id: string;
-    start_time: string;
-    end_time: string;
+    image: {
+      image: string;
+      image_url: string;
+    };
+    method_name: string;
+    price: number;
+    gym: GymData;
+    user: UserData;
+    membership_option: MemberData;
 }
+
+type GymData = {
+  id: number;
+  name: string;
+  description: string;
+  address: string;
+}
+type UserData = {
+  id: number;
+  name: string;
+  email: string;
+  phone_number: string;
+}
+type MemberData = {
+  id: number;
+  name: string;
+  description: string;
+  price: string;
+}
+
 
 type ApiResponse<T> = {
   current_page: string;
@@ -48,11 +72,11 @@ type ApiResponse<T> = {
 };
 
 export default function GymsPage() {
-  const [data, setData] = useState<ApiResponse<GymData> | null>(null);
+  const [data, setData] = useState<ApiResponse<TransactionData> | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [selectedGym, setSelectedGym] = useState<GymData | null>(null);
-  const [deleteGym, setDeleteGym] = useState<GymData | null>(null);
+  const [selectedGym, setSelectedGym] = useState<TransactionData | null>(null);
+  const [deleteGym, setDeleteGym] = useState<TransactionData | null>(null);
   const { toast } = useToast();
 
   const filteredGyms = gyms.filter((gym) =>
@@ -66,7 +90,7 @@ export default function GymsPage() {
           "Authorization": `Bearer ${getCookie("token")}`
         }
       })
-      const resGym: ApiResponse<GymData> = await response.json()
+      const resGym: ApiResponse<TransactionData> = await response.json()
       setData(resGym)   
       console.log(resGym);
       
@@ -141,22 +165,26 @@ export default function GymsPage() {
             </TableHeader>
             <TableBody>
               { data?.items != undefined ? (
-                data?.items.map((gym: GymData) => (
-                  <TableRow key={gym.id}>
+                data?.items.map((data: TransactionData) => (
+                  <TableRow key={data.id}>
+                    <TableCell>{data.user.name}</TableCell>
+                    <TableCell>{data.gym.name}</TableCell>
+                    <TableCell>{data.membership_option.name}</TableCell>
+                    <TableCell>{formatPrice(data.price)}</TableCell>
                     <TableCell>
-                      {gym.images}
+                      <Link 
+                        href={data.image.image_url}
+                        target="_blank"
+                      >
+                        <Image src={data.image.image_url} className="object-cover" alt="image_transaction" width={200} height={200}/>
+                      </Link>
                     </TableCell>
-                    <TableCell>{gym.name}</TableCell>
-                    <TableCell>{gym.description}</TableCell>
-                    <TableCell>{gym.start_time}</TableCell>
-                    <TableCell>{gym.end_time}</TableCell>
-                    <TableCell>{gym.address}</TableCell>
                     <TableCell className="flex justify-end gap-2 text-right">
                       <Button
                         variant="ghost"
                         className="py-2.5 px-6 rounded-lg text-sm font-medium bg-teal-600 text-white"
                         onClick={() => {
-                          setSelectedGym(gym);
+                          setSelectedGym(data);
                           setIsDialogOpen(true);
                         }}
                       >
@@ -165,7 +193,7 @@ export default function GymsPage() {
                       <Button
                         variant="ghost"
                         className="py-2.5 px-6 rounded-lg text-sm font-medium bg-red-200 text-red-800"
-                        onClick={() => setDeleteGym(gym)}
+                        onClick={() => setDeleteGym(data)}
                       >
                         Batalkan
                       </Button>

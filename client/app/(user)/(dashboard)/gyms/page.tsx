@@ -52,7 +52,7 @@ import { useToast } from "@/hooks/use-toast";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
-import { createGym, editGym } from "@/lib/api/gym";
+import { createGym, deletedGym, editGym } from "@/lib/api/gym";
 import { ApiUrl } from "@/config/config";
 import { getCookie } from "@/lib/utils";
 import { number } from "zod";
@@ -92,16 +92,11 @@ export default function GymsPage() {
   const [data, setData] = useState<ApiResponse<GymData> | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [facilityQuery, setFacilityQuery] = useState(null);
   const [regency, setRegency] = useState<ApiResponse<RegencyData> | null>(null);
   const [province, setProvince] = useState<ApiResponse<ProvinceData> | null>(null);
   const [selectedGym, setSelectedGym] = useState<GymData | null>(null);
   const [deleteGym, setDeleteGym] = useState<GymData | null>(null);
   const { toast } = useToast();
-
-  const filteredGyms = gyms.filter((gym) =>
-    gym.name.toLowerCase().includes(searchQuery.toLowerCase())
-  );
 
   async function getDataGym() {
     try {
@@ -118,7 +113,6 @@ export default function GymsPage() {
       
     }
   }
-
 
   async function handleSave (e: React.FormEvent<HTMLFormElement>)  {
     e.preventDefault();
@@ -137,8 +131,7 @@ export default function GymsPage() {
       }
       await getDataGym();
       toast({
-        title: `Gym ${selectedGym ? "updated" : "created"} successfully!`,
-        description: `${formData.get("name")} has been ${selectedGym ? "updated" : "added"} to the system.`,
+        title: `Berhasil menambahkan gym!`,
       });
       setIsDialogOpen(false);
       setSelectedGym(null);
@@ -170,8 +163,7 @@ export default function GymsPage() {
     }
   };
 
-  async function getLocation(state:boolean) {
-    if (state) {
+  async function getLocation() {
       try {
         const p = await fetch(`${ApiUrl}/province`, {
           headers:{
@@ -192,30 +184,38 @@ export default function GymsPage() {
         console.log(error);
         
       }
-    }
+  }
+  async function openDialog(state:boolean) {
     setIsDialogOpen(state)
+    if (isDialogOpen) {
+      console.log(selectedGym);
+      
+      setSelectedGym(null)
+    }
   }
   
   useEffect(() => {
     getDataGym()
+    getLocation()
   },[])
 
 
-  const handleDelete = () => {
+  const handleDelete = async () => {
     if (!deleteGym) return;
+    await deletedGym(deleteGym)
     toast({
       title: "Gym deleted successfully!",
       description: `${deleteGym.name} has been removed from the system.`,
     });
-
     setDeleteGym(null);
+    getDataGym()
   };
 
   return (
     <div className="p-6">
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-3xl font-bold">Gyms</h1>
-        <Dialog open={isDialogOpen} onOpenChange={state => getLocation(state)}>
+        <Dialog open={isDialogOpen} onOpenChange={state => openDialog(state)}>
           <DialogTrigger asChild>
             <Button>
               <Plus className="h-4 w-4 mr-2" />
@@ -231,6 +231,14 @@ export default function GymsPage() {
                 <div className="space-y-2">
                   <label htmlFor="picture" className="text-sm font-medium">Gambar Tempat</label>
                   <Input id="picture" name="images[]" type="file" multiple/>
+                  <Input
+                    id="name"
+                    name="gym_id"
+                    defaultValue={selectedGym?.id}
+                    required
+                    hidden={true}
+                    className="hidden"
+                  />
                 </div>
                 <div className="space-y-2">
                   <label htmlFor="name" className="text-sm font-medium">Nama Tempat</label>
@@ -291,7 +299,7 @@ export default function GymsPage() {
               <div className="grid grid-cols-1 gap-4">
                 <div className="space-y-2">
                   <label htmlFor="regency" className="text-sm font-medium">Kota/Kabupaten</label>
-                  <Select name="city_id">
+                  <Select name="city_id" value={selectedGym?.city_id.toString()}>
                     <SelectTrigger className="w-[280px]">
                       <SelectValue placeholder="Pilih Kota/Kabupaten" />
                     </SelectTrigger>
@@ -418,10 +426,10 @@ export default function GymsPage() {
       <AlertDialog open={!!deleteGym} onOpenChange={() => setDeleteGym(null)}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+            <AlertDialogTitle>Apakah kamu yakin?</AlertDialogTitle>
             <AlertDialogDescription>
-              This action cannot be undone. This will permanently delete{" "}
-              {deleteGym?.name} and remove it from the system.
+              Aksi ini tidak bisa mengembalikan data yang dihapus. Ini akan menghapus {" "}
+              {deleteGym?.name} secara permanen.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>

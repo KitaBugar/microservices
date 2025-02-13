@@ -15,6 +15,7 @@ type MembershipOption struct {
 	GymID       uint   `json:"gym"`
 	UserID      uint   `json:"user"`
 	Memberships []Membership
+	Transaction []Transaction
 	gorm.Model  `json:"-"`
 }
 
