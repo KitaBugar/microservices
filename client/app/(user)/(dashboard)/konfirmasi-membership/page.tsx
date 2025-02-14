@@ -28,6 +28,7 @@ import { ApiUrl } from "@/config/config";
 import { formatPrice, getCookie } from "@/lib/utils";
 import Link from "next/link";
 import Image from "next/image";
+import { handleConfirmationMember } from "@/lib/api/membership";
 
 type TransactionData = {
     id: number;
@@ -40,7 +41,8 @@ type TransactionData = {
     price: number;
     gym: GymData;
     user: UserData;
-    membership_option: MemberData;
+    membership: MemberData;
+    membership_option: MemberOData;
 }
 
 type GymData = {
@@ -54,6 +56,12 @@ type UserData = {
   name: string;
   email: string;
   phone_number: string;
+}
+type MemberOData = {
+  id: number;
+  name: string;
+  description: string;
+  price: string;
 }
 type MemberData = {
   id: number;
@@ -91,10 +99,8 @@ export default function GymsPage() {
         }
       })
       const resGym: ApiResponse<TransactionData> = await response.json()
-      setData(resGym)   
       console.log(resGym);
-      
-      
+      setData(resGym)   
     } catch (error) {
       console.log(error);
       
@@ -103,23 +109,13 @@ export default function GymsPage() {
 
   async function handleConfirmation (e: React.FormEvent<HTMLFormElement>)  {
     e.preventDefault();
-    const formData = new FormData(e.currentTarget);
-    const fileInput = e.currentTarget.querySelector('input[type="file"]') as HTMLInputElement;
-    if (fileInput && fileInput.files) {
-      Array.from(fileInput.files).forEach((file, index) => {
-        formData.append(`images[${index}]`, file);
-      });
-    }
+    const formData = new FormData(e.currentTarget)
     try {
-      if (selectedGym) {
-        await editGym(formData)
-      }else{
-        await createGym(formData)
-      }
+      await handleConfirmationMember(formData)
       await getDataConfirmation();
       toast({
-        title: `Gym ${selectedGym ? "updated" : "created"} successfully!`,
-        description: `${formData.get("name")} has been ${selectedGym ? "updated" : "added"} to the system.`,
+        title: `Berhasil mengirim data!`,
+        description: `${selectedGym?.name} has been ${selectedGym ? "updated" : "added"} to the system.`,
       });
       setIsDialogOpen(false);
       setSelectedGym(null);
@@ -132,17 +128,6 @@ export default function GymsPage() {
     getDataConfirmation()
   },[])
 
-
-  const handleDelete = () => {
-    if (!deleteGym) return;
-
-    toast({
-      title: "Gym deleted successfully!",
-      description: `${deleteGym.name} has been removed from the system.`,
-    });
-
-    setDeleteGym(null);
-  };
 
   return (
     <div className="p-6">
@@ -180,23 +165,33 @@ export default function GymsPage() {
                       </Link>
                     </TableCell>
                     <TableCell className="flex justify-end gap-2 text-right">
-                      <Button
-                        variant="ghost"
-                        className="py-2.5 px-6 rounded-lg text-sm font-medium bg-teal-600 text-white"
-                        onClick={() => {
-                          setSelectedGym(data);
-                          setIsDialogOpen(true);
-                        }}
-                      >
-                        Setuju
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        className="py-2.5 px-6 rounded-lg text-sm font-medium bg-red-200 text-red-800"
-                        onClick={() => setDeleteGym(data)}
-                      >
-                        Batalkan
-                      </Button>
+                      <form onSubmit={handleConfirmation}>
+                        <input type="text" name="transaction_id" value={data.id} hidden className="hidden" />
+                        <input type="text" name="membership_id" value={data.membership.id} hidden className="hidden"/>
+                        <input type="text" name="confirmation" value="success" hidden className="hidden"/>
+                        <Button
+                          variant="ghost"
+                          className="py-2.5 px-6 rounded-lg text-sm font-medium bg-teal-600 text-white"
+                          onClick={() => { 
+                            setSelectedGym(data);
+                          }}
+                        >
+                          Setuju
+                        </Button>
+                      </form>
+                      <form onSubmit={handleConfirmation}>
+                        <input type="text" name="transaction_id" value={data.id} hidden className="hidden"/>
+                        <input type="text" name="membership_id" value={data.membership.id} hidden className="hidden"/>
+                        <input type="text" name="confirmation" value="cancel" hidden className="hidden"/>
+                        <Button
+                          type="submit"
+                          variant="ghost"
+                          className="py-2.5 px-6 rounded-lg text-sm font-medium bg-red-200 text-red-800"
+                          onClick={() => setDeleteGym(data)}
+                        >
+                          Batalkan
+                        </Button>
+                      </form>
                       </TableCell>
                   </TableRow>
                 ))) :

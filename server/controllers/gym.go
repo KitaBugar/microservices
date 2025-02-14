@@ -166,7 +166,7 @@ func DetailGym(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	gym := &models.Gym{}
-	result := db.Preload("Facilities").Preload("MembershipOptions").First(&gym, gymID)
+	result := db.Preload("Facilities").Preload("MembershipOptions").Preload("User.MethodPayment").First(&gym, gymID)
 	if result.Error != nil {
 		respondError(w, http.StatusBadRequest, result.Error.Error())
 		return
@@ -239,7 +239,7 @@ func GetCheckInGym(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	db.First(&g, gID)
-	res := db.Preload("Membership.User").Preload("Membership.MembershipOption").Find(&m).Error
+	res := db.Preload("Membership.User").Preload("Membership.MembershipOption").Where("gym_id = ?", gID).Find(&m).Error
 	if res != nil {
 		respondError(w, http.StatusBadRequest, "Membership tidak ada")
 		return

@@ -24,12 +24,26 @@ func ListMembership(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	db.Where("email = ?", email).First(&user)
-	result := db.Scopes(utils.Paginate(r)).Model(&models.Membership{}).Preload("Gyms").Where("user_id = ?", user.ID).Find(&membership).Error
+	result := db.Scopes(utils.Paginate(r)).Model(&models.Membership{}).Preload("Gym").Where("user_id = ?", user.ID).Find(&membership).Error
 	if result != nil {
 		respondJSON(w, http.StatusOK, utils.Response{Items: "", Message: "Belum ada membership"})
 		return
 	}
-	respondJSON(w, http.StatusOK, utils.Response{Items: membership})
+	var data []models.Membership
+	for _, member := range *membership {
+		startDateFormatted := member.StartDate.Format("2006-01-02")
+		endDateFormatted := member.EndDate.Format("2006-01-02")
+		if time.Now().After(member.EndDate) {
+			member.IsExpired = true
+		} else {
+			member.IsExpired = false
+
+		}
+		member.StartDateFormatted = startDateFormatted
+		member.EndDateFormatted = endDateFormatted
+		data = append(data, member)
+	}
+	respondJSON(w, http.StatusOK, utils.Response{Items: data})
 
 }
 
@@ -69,8 +83,17 @@ func BuyMembership(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
 	db.First(&memberOp, memberOpID)
 	db.First(&methodPay, methodPayID)
 
-	layout := "2006-01-02"
-	endDateP, _ := time.Parse(layout, r.FormValue("end_date"))
+	startDateStr := r.FormValue("start_date")
+	if err != nil {
+		fmt.Println("Error parsing date:", err)
+		return
+	}
+	purchaseDate, err := time.Parse("2006-01-02", startDateStr)
+	if err != nil {
+		http.Error(w, "Format start_date harus YYYY-MM-DD", http.StatusBadRequest)
+		return
+	}
+	endDateP := utils.GetExpiryDate(purchaseDate)
 	err = db.Where("user_id = ?", user.ID).
 		Where("gym_id = ?", gID).
 		Where("membership_option_id = ?", memberOp.ID).
@@ -81,7 +104,7 @@ func BuyMembership(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
 			UserID:             user.ID,
 			GymID:              gym.ID,
 			MembershipOptionID: memberOp.ID,
-			StartDate:          time.Now(),
+			StartDate:          purchaseDate,
 			EndDate:            endDateP,
 			Status:             "false",
 		}
@@ -89,10 +112,9 @@ func BuyMembership(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
 		transaction.MembershipID = int(newMember.ID)
 	} else {
 		db.Model(&member).Updates(map[string]interface{}{
-			"card_number": nil,
-			"start_date":  time.Now(),
-			"end_date":    endDateP,
-			"status":      "false",
+			"start_date": purchaseDate,
+			"end_date":   endDateP,
+			"status":     "false",
 		})
 		transaction.MembershipID = int(member.ID)
 	}

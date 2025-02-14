@@ -17,8 +17,12 @@ type Membership struct {
 	UserID             uint             `json:"user_id"`
 	User               User             `json:"user"`
 	MembershipOption   MembershipOption `json:"membership_option"`
+	Gym                Gym              `json:"gym"`
 	CheckIn            []CheckIn
 	Transactions       []Transaction
+	StartDateFormatted string `json:"start_date_format"`
+	EndDateFormatted   string `json:"end_date_format"`
+	IsExpired          bool   `json:"is_expired"`
 	gorm.Model         `json:"-"`
 }
 type MembershipResponse struct {
@@ -32,6 +36,7 @@ type MembershipResponse struct {
 	UserID             uint             `json:"user_id"`
 	MembershipOption   MembershipOption `json:"membership_option"`
 	Transactions       []Transaction
+	Gym                Gym  `json:"gym"`
 	User               User `json:"user"`
 	gorm.Model         `json:"-"`
 }
@@ -47,6 +52,7 @@ func (u *Membership) MembershipResponse() *MembershipResponse {
 		UserID:             u.UserID,
 		GymID:              u.GymID,
 		User:               u.User,
+		Gym:                u.Gym,
 		MembershipOption:   u.MembershipOption,
 	}
 }

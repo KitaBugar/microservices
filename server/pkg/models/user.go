@@ -39,7 +39,7 @@ type User struct {
 	Memberships       []Membership       `json:"membership"`
 	MembershipOptions []MembershipOption `json:"membership_option"`
 	Transactions      []Transaction
-	MethodPayments    MethodPayment
+	MethodPayment     MethodPayment
 }
 
 func IsValidGender(gender string) string {
@@ -67,7 +67,7 @@ type UserResponse struct {
 	Status         Status        `json:"status"`
 	CreatedAt      string        `json:"created_at"`
 	UpdatedAt      string        `json:"updated_at"`
-	MethodPayments MethodPayment `json:"method_payment"`
+	MethodPayment  MethodPayment `json:"method_payment"`
 }
 
 func (u *User) ToResponse() UserResponse {
@@ -84,6 +84,6 @@ func (u *User) ToResponse() UserResponse {
 		Status:         u.Status,
 		CreatedAt:      u.CreatedAt.Format(time.RFC3339),
 		UpdatedAt:      u.UpdatedAt.Format(time.RFC3339),
-		MethodPayments: u.MethodPayments,
+		MethodPayment:  u.MethodPayment,
 	}
 }

@@ -26,6 +26,7 @@ type Gym struct {
 	CityID            int    `gorm:"not null" json:"city_id"`
 	ProvinceID        int    `gorm:"not null" json:"province_id"`
 	UserID            uint   `gorm:"not null" json:"user_id"`
+	User              User
 	Memberships       []Membership
 	Facilities        []*Facility `gorm:"many2many:gym_facilities" json:"facilities"`
 	MembershipOptions []MembershipOption
@@ -48,7 +49,10 @@ type GymResponse struct {
 	CreatedAt         string             `json:"created_at"`
 	UpdatedAt         string             `json:"updated_at"`
 	MembershipOptions []MembershipOption `json:"membership_option"`
+	User              User               `json:"user"`
 	Facilities        []*Facility        `json:"facility"`
+	Memberships       []Membership       `json:"membership"`
+	City              interface{}
 }
 
 func (u *Gym) ToResponse() *GymResponse {
@@ -66,8 +70,9 @@ func (u *Gym) ToResponse() *GymResponse {
 			Image:    img,
 			ImageUrl: fmt.Sprintf("%s/assets/image_banner/%s", os.Getenv("APP_URL"), img),
 		})
-	}
 
+	}
+	// city
 	return &GymResponse{
 		ID:                u.ID,
 		Name:              u.Name,
@@ -79,9 +84,11 @@ func (u *Gym) ToResponse() *GymResponse {
 		CityID:            u.CityID,
 		ProvinceID:        u.ProvinceID,
 		UserID:            u.UserID,
+		User:              u.User,
 		CreatedAt:         u.CreatedAt.Format(time.RFC3339),
 		UpdatedAt:         u.UpdatedAt.Format(time.RFC3339),
 		MembershipOptions: u.MembershipOptions,
 		Facilities:        u.Facilities,
+		Memberships:       u.Memberships,
 	}
 }

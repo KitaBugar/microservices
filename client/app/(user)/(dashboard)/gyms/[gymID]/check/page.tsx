@@ -155,7 +155,7 @@ export default function PackagePage() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              { data?.items != undefined ? (
+              { data?.items && data.items.length > 0 ? (
                 data?.items.map((data :CheckData) => {
                   const a = new Date(data.created_at);
                   const formattedDate = a.toISOString().replace('T', ' ').slice(0, 19);

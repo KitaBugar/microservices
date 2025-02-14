@@ -204,8 +204,8 @@ export default function GymsPage() {
     if (!deleteGym) return;
     await deletedGym(deleteGym)
     toast({
-      title: "Gym deleted successfully!",
-      description: `${deleteGym.name} has been removed from the system.`,
+      title: "Gym berhasil dihapus!",
+      description: `${deleteGym.name} sudah dihapus dari sistem.`,
     });
     setDeleteGym(null);
     getDataGym()

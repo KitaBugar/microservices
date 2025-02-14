@@ -10,8 +10,8 @@ type MethodPayment struct {
 	ID            uint   `gorm:"primaryKey" json:"id"`
 	Name          string `json:"name"`
 	AccountNumber string `json:"account_number"`
-	MethodID      string `json:"method"`
-	UserID        uint   `db:"unique;not null" json:"user"`
+	MethodID      string `json:"method_id"`
+	UserID        uint   `db:"unique;not null" json:"user_id"`
 	gorm.Model    `json:"-"`
 }
 

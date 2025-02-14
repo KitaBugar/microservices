@@ -12,8 +12,8 @@ type MembershipOption struct {
 	Description string `json:"description"`
 	Features    string `gorm:"type:json" json:"features"`
 	Price       int    `json:"price"`
-	GymID       uint   `json:"gym"`
-	UserID      uint   `json:"user"`
+	GymID       uint   `json:"gym_id"`
+	UserID      uint   `json:"user_id"`
 	Memberships []Membership
 	Transaction []Transaction
 	gorm.Model  `json:"-"`
@@ -26,11 +26,11 @@ type MembershipOptionResponse struct {
 	Description string      `json:"description"`
 	Features    string      `json:"operating_hours"`
 	Price       int         `json:"address"`
-	UserID      uint        `json:"user"`
+	UserID      uint        `json:"user_id"`
 	Gym         uint        `json:"gym"`
 	CreatedAt   string      `json:"created_at"`
 	UpdatedAt   string      `json:"updated_at"`
-	Facilities  []*Facility `json:"facilities"`
+	Facilities  []*Facility `json:"facility"`
 }
 
 func (u *MembershipOption) ToResponse() *MembershipOptionResponse {

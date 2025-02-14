@@ -1,6 +1,8 @@
 module server
 
-go 1.18
+go 1.22.0
+
+toolchain go1.23.5
 
 require (
 	github.com/golang-jwt/jwt v3.2.2+incompatible
@@ -23,6 +25,7 @@ require (
 	github.com/jinzhu/now v1.1.5 // indirect
 	github.com/leodido/go-urn v1.4.0 // indirect
 	github.com/rs/cors v1.11.1 // indirect
+	golang.org/x/exp v0.0.0-20250210185358-939b2ce775ac // indirect
 	golang.org/x/net v0.34.0 // indirect
 	golang.org/x/sys v0.29.0 // indirect
 	golang.org/x/text v0.21.0 // indirect

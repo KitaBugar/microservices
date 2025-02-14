@@ -42,3 +42,26 @@ export async function createCheckIn(formData: FormData, params : Params) {
         throw error
     }
 }
+
+export async function handleConfirmationMember(formData :FormData) {
+    try {
+        const token = getCookie("token");
+        if (!token) {
+            throw new Error("Token not found.");
+        }
+        const response = await fetch(`${ApiUrl}/transaction`, {
+            method: 'PUT',
+            headers: ({
+                "Authorization": `Bearer ${token}`,
+              }),
+            body: formData,
+          });
+          if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.error);
+         }
+        return await response.json()
+    } catch (error) {
+        throw error
+    }
+}

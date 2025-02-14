@@ -5,7 +5,9 @@ import (
 	"server/middleware"
 	"server/pkg/models"
 	"server/utils"
+	"time"
 
+	"golang.org/x/exp/rand"
 	"gorm.io/gorm"
 )
 
@@ -66,7 +68,7 @@ func GetAllTransaction(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
 	}
 
 	for i := range transactions {
-		db.Preload("User").Preload("Gym").Preload("MembershipOption").First(&transactions[i], transactions[i].ID)
+		db.Preload("User").Preload("Gym").Preload("MembershipOption").Preload("Membership").First(&transactions[i], transactions[i].ID)
 	}
 
 	var data []models.TransactionResponse
@@ -89,16 +91,26 @@ func HandleTransaction(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
 	m := &models.Membership{
 		ID: uint(mID),
 	}
+	const charset = "abcdefghijklmnopqrstuvwxyz0123456789"
+	source := rand.NewSource(uint64(time.Now().UnixNano()))
+	rous := rand.New(source)
+	cardNumber := make([]byte, 6)
+
+	for i := range cardNumber {
+		cardNumber[i] = charset[rous.Intn(len(charset))] // Pilih karakter acak dari charset
+	}
 	db.Find(&t).Updates(models.Transaction{
 		Status: acc,
 	})
 	if acc == "success" {
-		db.Find(&m).Updates(models.Transaction{
-			Status: "true",
+		db.Find(&m).Updates(models.Membership{
+			CardNumber: string(cardNumber),
+			Status:     "true",
 		})
 	} else {
-		db.Find(&m).Updates(models.Transaction{
-			Status: "false",
+		db.Find(&m).Updates(map[string]interface{}{
+			"card_number": "",
+			"status":      "false",
 		})
 	}
 	res := make(map[string]interface{})

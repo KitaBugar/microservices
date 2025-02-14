@@ -38,6 +38,7 @@ type TransactionResponse struct {
 	Status           string           `gorm:"type:ENUM('success', 'pending', 'cancel')" json:"status"`
 	Price            int              `gorm:"not null" json:"price"`
 	User             User             `json:"user"`
+	Membership       Membership       `json:"membership"`
 	Gym              Gym              `json:"gym"`
 	MembershipOption MembershipOption `json:"membership_option"`
 	gorm.Model       `json:"-"`
@@ -54,6 +55,7 @@ func (u *Transaction) TransactionResponse() *TransactionResponse {
 		Status:           u.Status,
 		Price:            u.Price,
 		User:             u.User,
+		Membership:       u.Membership,
 		Gym:              u.Gym,
 		MembershipOption: u.MembershipOption,
 	}

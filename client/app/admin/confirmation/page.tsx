@@ -53,8 +53,8 @@ export default function GymsPage() {
         }
       })
       const resGym: ApiResponse<UserData> = await response.json()
-      setData(resGym)   
-      
+      setData(resGym)         
+  
     } catch (error) {
       console.log(error);
       

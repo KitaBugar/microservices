@@ -145,7 +145,7 @@ func (a *App) setRouters() {
 	a.Post(apiRouter, "/method-payment", a.createMethodPayment)
 	a.Update(apiRouter, "/method-payment", a.updateMethodPayment)
 
-	// Transaction
+	// Transaction Membership
 	a.Get(apiRouter, "/transaction", a.getAllTransaction)
 	a.Update(apiRouter, "/transaction", a.handleTransaction)
 

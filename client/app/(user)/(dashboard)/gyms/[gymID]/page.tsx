@@ -35,7 +35,7 @@ import {
 import { useToast } from "@/hooks/use-toast";
 import { Textarea } from "@/components/ui/textarea";
 import { ApiUrl } from "@/config/config";
-import { getCookie } from "@/lib/utils";
+import { formatPrice, getCookie } from "@/lib/utils";
 import { useParams, useRouter } from "next/navigation";
 import { createPackage, editPackage } from "@/lib/api/membership_options";
 
@@ -50,14 +50,14 @@ type GymData = {
     start_time: string;
     end_time: string;
     facility: [];
-    membership_options: PackageData[];
+    membership_option: PackageData[];
 }
 type PackageData = {
     id: number;
     name: string;
     description: string;
     features: string;
-    price: string;
+    price: number;
     gym_id: string;
     user_id: string;
 }
@@ -244,8 +244,8 @@ export default function PackagePage() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              { data?.items != undefined ? (
-                data?.items.membership_options.map((paket: PackageData) => (
+              { data?.items.membership_option != undefined  ? (
+                data?.items?.membership_option.map((paket: PackageData) => (
                   <TableRow key={paket.id}>
                     <TableCell>{paket.name}</TableCell>
                     <TableCell>{paket.description}</TableCell>
@@ -257,7 +257,7 @@ export default function PackagePage() {
                           return (
                             <ul>
                               {parsedFeatures.map((feature, index) => (
-                                <li key={index}>{feature}</li>
+                                <li key={index}>- {feature}</li>
                               ))}
                             </ul>
                           );
@@ -269,7 +269,7 @@ export default function PackagePage() {
                       }
                     })()}
                     </TableCell>
-                    <TableCell>{paket.price}</TableCell>
+                    <TableCell>{formatPrice(paket.price)}</TableCell>
                     <TableCell className="text-right">
                       <Button
                         variant="ghost"
