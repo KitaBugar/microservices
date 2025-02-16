@@ -70,9 +70,9 @@ export default function LoginPreview() {
     <div className="flex flex-col min-h-[100vh] h-full w-full items-center justify-center px-4">
       <Card className="mx-auto max-w-sm">
         <CardHeader>
-          <CardTitle className="text-2xl">Login</CardTitle>
+          <CardTitle className="text-2xl">Login Admin</CardTitle>
           <CardDescription>
-            Masukkan Email dan password untuk login ke akunmu.
+            Masukkan Email dan password untuk login akun.
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -105,12 +105,6 @@ export default function LoginPreview() {
                     <FormItem className="grid gap-2">
                       <div className="flex justify-between items-center">
                         <FormLabel htmlFor="password">Password</FormLabel>
-                        <Link
-                          href="#"
-                          className="ml-auto inline-block text-sm underline"
-                        >
-                          Lupa Password?
-                        </Link>
                       </div>
                       <FormControl>
                         <PasswordInput
@@ -130,12 +124,6 @@ export default function LoginPreview() {
               </div>
             </form>
           </Form>
-          <div className="mt-4 text-center text-sm">
-            Tidak punya akun?{' '}
-            <Link href="/signup" className="underline">
-              Sign up
-            </Link>
-          </div>
         </CardContent>
       </Card>
     </div>
