@@ -52,7 +52,7 @@ export default function LoginPreview() {
       if (res instanceof Error) {
         throw res.message
       }     
-      window.location.href = "/"
+      window.location.href = "/admin"
      
     } catch (error) {
       console.error('Form submission error', error)

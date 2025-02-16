@@ -23,7 +23,7 @@ type ImageMethod struct {
 type MethodResponse struct {
 	ID        uint        `json:"id"`
 	Name      string      `json:"name"`
-	Image     ImageMethod `json:"account_number"`
+	Image     ImageMethod `json:"image"`
 	CreatedAt string      `json:"created_at"`
 	UpdatedAt string      `json:"updated_at"`
 }

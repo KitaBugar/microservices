@@ -14,6 +14,8 @@ import {
   TableRow,
 } from "@/components/ui/table";
 
+
+
 import { useToast } from "@/hooks/use-toast";
 import { ApiUrl } from "@/config/config";
 import { formatPrice, getCookie } from "@/lib/utils";
@@ -125,7 +127,7 @@ export default function GymsPage() {
     <div className="p-6">
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-3xl font-bold">Konfirmasi Membership</h1>
-      </div>
+        </div>
       <Card>
         <CardContent className="p-6">
 

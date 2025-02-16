@@ -3,7 +3,7 @@
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { DumbbellIcon, HomeIcon, BuildingIcon, Dumbbell, CreditCard, Folder, User, LogOut } from "lucide-react";
+import { DumbbellIcon, HomeIcon, BuildingIcon, Dumbbell, CreditCard, Folder, User, LogOut, UserRoundCheck } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
@@ -16,12 +16,17 @@ const routes = [
   {
     label: 'Fasilitas',
     icon: DumbbellIcon,
-    href: '/admin/facility',
+    href: '/admin/fasilitas',
+  },
+  {
+    label: 'Metode Pembayaran',
+    icon: CreditCard,
+    href: '/admin/metode-pembayaran',
   },
   {
     label: 'Konfirmasi KTP',
-    icon: Folder,
-    href: '/admin/confirmation',
+    icon: UserRoundCheck,
+    href: '/admin/konfirmasi-ktp',
   },
   {
     label: 'Logout',
