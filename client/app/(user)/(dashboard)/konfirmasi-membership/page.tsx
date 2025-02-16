@@ -4,8 +4,6 @@ import { useEffect, useState } from "react";
 import { gyms } from "@/lib/data";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import dynamic from 'next/dynamic';
 
 import {
   Table,
@@ -16,14 +14,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 
-const Dialog = dynamic(() => import('@/components/ui/dialog').then((mod) => mod.Dialog));
-const DialogContent = dynamic(() => import('@/components/ui/dialog').then((mod) => mod.DialogContent));
-const DialogHeader = dynamic(() => import('@/components/ui/dialog').then((mod) => mod.DialogHeader));
-const DialogTitle = dynamic(() => import('@/components/ui/dialog').then((mod) => mod.DialogTitle));
-const DialogTrigger = dynamic(() => import('@/components/ui/dialog').then((mod) => mod.DialogTrigger));
-
 import { useToast } from "@/hooks/use-toast";
-import { createGym, editGym } from "@/lib/api/gym";
 import { ApiUrl } from "@/config/config";
 import { formatPrice, getCookie } from "@/lib/utils";
 import Link from "next/link";
@@ -63,6 +54,7 @@ type MemberOData = {
   description: string;
   price: string;
 }
+
 type MemberData = {
   id: number;
   name: string;
@@ -149,7 +141,7 @@ export default function GymsPage() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              { data?.items != undefined ? (
+              { data?.items ? (
                 data?.items.map((data: TransactionData) => (
                   <TableRow key={data.id}>
                     <TableCell>{data.user.name}</TableCell>

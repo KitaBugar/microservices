@@ -48,7 +48,7 @@ func DetailUser(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
 		respondError(w, http.StatusBadRequest, "Akun tidak ditemukan")
 		return
 	}
-	db.Where("email = ?", email).Preload("MethodPayments").First(&user)
+	db.Where("email = ?", email).Preload("MethodPayment").First(&user)
 	respondJSON(w, http.StatusOK, utils.ToResponse(r, user.ToResponse(), "Success"))
 }
 

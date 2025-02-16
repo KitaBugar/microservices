@@ -124,7 +124,7 @@ export default function Setting() {
       <TabsList className="grid w-full grid-cols-3">
         <TabsTrigger value="account">Akun</TabsTrigger>
         <TabsTrigger value="ktp">Upload KTP</TabsTrigger>
-        <TabsTrigger value="metode-pembayaran">Metode Pembayaran</TabsTrigger>
+        <TabsTrigger value="metode-pembayaran" disabled={(account?.identify_status == "success") ? false : true}>Metode Pembayaran</TabsTrigger>
       </TabsList>
       <TabsContent value="account">
         <Card>
