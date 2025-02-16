@@ -11,3 +11,6 @@ func (a *App) getAllFacility(w http.ResponseWriter, r *http.Request) {
 func (a *App) createFacility(w http.ResponseWriter, r *http.Request) {
 	controllers.CreateFacility(a.DB, w, r)
 }
+func (a *App) updateFacility(w http.ResponseWriter, r *http.Request) {
+	controllers.UpdateFacility(a.DB, w, r)
+}

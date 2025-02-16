@@ -48,7 +48,11 @@ export default function LoginPreview() {
   const { toast } = useToast()
   async function onSubmit(values: z.infer<typeof formSchema>) {
     try {
-      const res = await login(values) 
+      const formdata = new FormData();
+      formdata.append("email", values.email);
+      formdata.append("password", values.password);
+      formdata.append("role", "admin");
+      const res = await login(formdata) 
       if (res instanceof Error) {
         throw res.message
       }     

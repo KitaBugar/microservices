@@ -71,7 +71,10 @@ func CreateFacility(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
 	}
 
 	response := facility.ToResponse()
-	respondJSON(w, http.StatusCreated, response)
+	respondJSON(w, http.StatusCreated, utils.Response{
+		Items:   response,
+		Message: "Berhasil menambahkan fasilitas gym",
+	})
 }
 
 func DetailFacility(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
@@ -82,14 +85,64 @@ func DetailFacility(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
 }
 
 func UpdateFacility(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
-	gym := models.Gym{}
-
-	decoder := json.NewDecoder(r.Body)
-	if err := decoder.Decode(&gym); err != nil {
-		respondError(w, http.StatusBadRequest, err.Error())
+	facility := models.Facility{}
+	newFacility := models.Facility{
+		Name: r.FormValue("name"),
+	}
+	c := r.FormValue("facility_id")
+	if c == "" {
+		respondError(w, http.StatusBadRequest, "Facility harus diisi")
 		return
 	}
-	defer r.Body.Close()
+
+	db.Model(&facility).Where("id = ?", c).First(&facility)
+	uploadedFile, handler, err := r.FormFile("image")
+	if err == nil {
+		if err != http.ErrMissingFile {
+			if err := r.ParseMultipartForm(2 << 20); err != nil {
+				respondError(w, http.StatusBadRequest, "file melebihi 2mb")
+				return
+			}
+			dir, err := os.Getwd()
+			oldFacility := facility.Image
+			if oldFacility != "" {
+				oldFacilityPath := filepath.Join(dir, "public/facility", oldFacility)
+				if _, err := os.Stat(oldFacilityPath); err == nil {
+					os.Remove(oldFacilityPath)
+				}
+			}
+			defer uploadedFile.Close()
+
+			if err != nil {
+				http.Error(w, err.Error(), http.StatusInternalServerError)
+				return
+			}
+			dateStr := time.Now().Format("20060102")
+			uniqueUUID := uuid.New().String()
+			filename := fmt.Sprintf("IMG_facility_%s_%s%s", dateStr, uniqueUUID, filepath.Ext(handler.Filename))
+			fileLocation := filepath.Join(dir, "public/facility", filename)
+			targetFile, err := os.OpenFile(fileLocation, os.O_WRONLY|os.O_CREATE, 0666)
+			if err != nil {
+				http.Error(w, err.Error(), http.StatusInternalServerError)
+				return
+			}
+			defer targetFile.Close()
+			if _, err := io.Copy(targetFile, uploadedFile); err != nil {
+				http.Error(w, err.Error(), http.StatusInternalServerError)
+				return
+			}
+			newFacility.Image = filename
+		} else {
+			respondError(w, http.StatusBadRequest, "gambar facility harus ada")
+			return
+		}
+	}
+
+	db.Model(&facility).Updates(&newFacility)
+	respondJSON(w, http.StatusCreated, utils.Response{
+		Items:   facility.ToResponse(),
+		Message: "Berhasil mengubah fasilitas gym",
+	})
 }
 
 func DeleteFacility(db *gorm.DB, w http.ResponseWriter, r *http.Request) {

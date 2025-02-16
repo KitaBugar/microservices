@@ -17,7 +17,7 @@ type Facility struct {
 }
 
 type ImageFacility struct {
-	URL      string `json:"url"`
+	Image    string `json:"image"`
 	ImageUrl string `json:"image_url"`
 }
 
@@ -31,7 +31,7 @@ type FacilityResponse struct {
 
 func (u *Facility) ToResponse() *FacilityResponse {
 	var images ImageFacility
-	images.URL = u.Image
+	images.Image = u.Image
 	images.ImageUrl = fmt.Sprintf("%s/assets/facility/%s", os.Getenv("APP_URL"), u.Image)
 	return &FacilityResponse{
 		ID:        u.ID,

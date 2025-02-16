@@ -1,11 +1,8 @@
 'use client';
 
 import { useEffect, useState } from "react";
-import { gyms } from "@/lib/data";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import dynamic from 'next/dynamic';
 
 import {
   Table,
@@ -16,114 +13,158 @@ import {
   TableRow,
 } from "@/components/ui/table";
 
-const Dialog = dynamic(() => import('@/components/ui/dialog').then((mod) => mod.Dialog));
-const DialogContent = dynamic(() => import('@/components/ui/dialog').then((mod) => mod.DialogContent));
-const DialogHeader = dynamic(() => import('@/components/ui/dialog').then((mod) => mod.DialogHeader));
-const DialogTitle = dynamic(() => import('@/components/ui/dialog').then((mod) => mod.DialogTitle));
-const DialogTrigger = dynamic(() => import('@/components/ui/dialog').then((mod) => mod.DialogTrigger));
+
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 
 import { useToast } from "@/hooks/use-toast";
-import { createGym, editGym } from "@/lib/api/gym";
-import { ApiUrl } from "@/config/config";
+import { ApiUrl, Url } from "@/config/config";
 import { getCookie } from "@/lib/utils";
+import Link from "next/link";
+import Image from "next/image";
+import { Input } from "@/components/ui/input";
+import { Pencil, Plus } from "lucide-react";
+import { createMethod, updateMethod } from "@/lib/api/method";
+import { createFacility, updateFacility } from "@/lib/api/facility";
 
-type GymData = {
+type Image = {
+    image: string;
+    image_url: string;
+}
+type MethodData = {
     id: number;
     name: string;
-    description: string;
-    address: string;
-    images: string;
-    city_id: string;
-    province_id: string;
-    start_time: string;
-    end_time: string;
+    image: Image;
+    phone_number: string;
+    identify: string;
 }
 
-type ApiResponse<T> = {
+type ApiResponse= {
   current_page: string;
   next_page: string | null;
   prev_page: string | null;
   message: string;
-  items: T[];
+  items: MethodData[];
 };
 
 export default function GymsPage() {
-  const [data, setData] = useState<ApiResponse<GymData> | null>(null);
-  const [searchQuery, setSearchQuery] = useState("");
+  const [data, setData] = useState<ApiResponse | null>(null);
+  const [selectedMethod, setSelectedMethod] = useState<MethodData | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [selectedGym, setSelectedGym] = useState<GymData | null>(null);
-  const [deleteGym, setDeleteGym] = useState<GymData | null>(null);
+  const [deleteGym, setDeleteGym] = useState <MethodData | null>(null);
   const { toast } = useToast();
 
-  const filteredGyms = gyms.filter((gym) =>
-    gym.name.toLowerCase().includes(searchQuery.toLowerCase())
-  );
 
-  async function getDataConfirmation() {
+
+  async function getData() {
     try {
-      const response = await fetch(`${ApiUrl}/transaction`, {
+      const response = await fetch(`${ApiUrl}/facility`, {
         headers:{
           "Authorization": `Bearer ${getCookie("token")}`
         }
       })
-      const resGym: ApiResponse<GymData> = await response.json()
-      setData(resGym)   
-      console.log(resGym);
-      
-      
+      const resGym: ApiResponse = await response.json()
+      setData(resGym)         
+  
     } catch (error) {
       console.log(error);
       
     }
   }
 
-  async function handleConfirmation (e: React.FormEvent<HTMLFormElement>)  {
+
+  async function handleSave (e: React.FormEvent<HTMLFormElement>)  {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
-    const fileInput = e.currentTarget.querySelector('input[type="file"]') as HTMLInputElement;
-    if (fileInput && fileInput.files) {
-      Array.from(fileInput.files).forEach((file, index) => {
-        formData.append(`images[${index}]`, file);
-      });
-    }
+    let res
     try {
-      if (selectedGym) {
-        await editGym(formData)
+      if (selectedMethod) {
+        res = await updateFacility(formData)
       }else{
-        await createGym(formData)
+        res = await createFacility(formData)
       }
-      await getDataConfirmation();
+      await getData();
       toast({
-        title: `Gym ${selectedGym ? "updated" : "created"} successfully!`,
-        description: `${formData.get("name")} has been ${selectedGym ? "updated" : "added"} to the system.`,
+        title: `${res.message}`,
       });
-      setIsDialogOpen(false);
-      setSelectedGym(null);
+      setSelectedMethod(null)
+      setIsDialogOpen(false)
     } catch (error) {
-      throw error
+      console.log(error);
     }
   };
+
+  async function openDialog(state:boolean) {
+    setIsDialogOpen(state)
+    if (isDialogOpen) {
+      setSelectedMethod(null)
+    }
+  }
   
   useEffect(() => {
-    getDataConfirmation()
+    getData()
   },[])
-
-
-  const handleDelete = () => {
-    if (!deleteGym) return;
-
-    toast({
-      title: "Gym deleted successfully!",
-      description: `${deleteGym.name} has been removed from the system.`,
-    });
-
-    setDeleteGym(null);
-  };
 
   return (
     <div className="p-6">
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-3xl font-bold">Konfirmasi Membership</h1>
+        <h1 className="text-3xl font-bold">Fasilitas Gym</h1>
+      <Dialog open={isDialogOpen} onOpenChange={state => openDialog(state)}>
+          <DialogTrigger asChild>
+            <Button>
+              <Plus className="h-4 w-4 mr-2" />
+              Tambah Fasilitas Gym
+            </Button>
+          </DialogTrigger>
+          <DialogContent className="max-w-2xl">
+            <DialogHeader>
+              <DialogTitle>{selectedMethod ? "Edit" : "Add"} Fasilitas</DialogTitle>
+            </DialogHeader>
+            <form onSubmit={handleSave} className="space-y-4" encType="multipart/form-data">
+              <div className="grid gap-4">
+                <div className="space-y-2">
+                  <label htmlFor="picture" className="text-sm font-medium">Gambar Metode Pembayaran</label>
+                  <Input id="picture" name="image" type="file"/>
+                  <Input
+                    id="name"
+                    name="facility_id"
+                    defaultValue={selectedMethod?.id ?? "null"}
+                    required
+                    hidden={true}
+                    className="hidden"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <label htmlFor="name" className="text-sm font-medium">Nama Tempat</label>
+                  <Input
+                    id="name"
+                    name="name"
+                    defaultValue={selectedMethod?.name}
+                    required
+                  />
+                </div>
+              </div>
+              <div className="flex justify-end space-x-2">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => {
+                    setIsDialogOpen(false);
+                    setSelectedMethod(null);
+                  }}
+                >
+                  Cancel
+                </Button>
+                <Button type="submit">Simpan</Button> 
+                </div>
+            </form>
+          </DialogContent>
+        </Dialog>
       </div>
       <Card>
         <CardContent className="p-6">
@@ -131,49 +172,37 @@ export default function GymsPage() {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Pengguna</TableHead>
-                <TableHead>Nama Gym</TableHead>
-                <TableHead>Paket Membership</TableHead>
-                <TableHead>Harga</TableHead>
-                <TableHead>Bukti Pembayaran</TableHead>
+                <TableHead>Nama Fasilitas</TableHead>
+                <TableHead>Gambar</TableHead>
                 <TableHead className="text-right">Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               { data?.items != undefined ? (
-                data?.items.map((gym: GymData) => (
-                  <TableRow key={gym.id}>
+                data?.items.map((data: MethodData) => (
+                  <TableRow key={data.id}>
+                    <TableCell>{data.name}</TableCell>
                     <TableCell>
-                      {gym.images}
+                      <Link href={`${data?.image?.image_url}`} target="_blank">
+                        <Image src={`${data?.image?.image_url}`} alt="image-method" width={200} height={100} className="object-contain w-[200px] h-[200px]"/>
+                      </Link>
                     </TableCell>
-                    <TableCell>{gym.name}</TableCell>
-                    <TableCell>{gym.description}</TableCell>
-                    <TableCell>{gym.start_time}</TableCell>
-                    <TableCell>{gym.end_time}</TableCell>
-                    <TableCell>{gym.address}</TableCell>
-                    <TableCell className="flex justify-end gap-2 text-right">
-                      <Button
+                    <TableCell className="flex justify-end items-center gap-2 h-full">
+                    <Button
                         variant="ghost"
-                        className="py-2.5 px-6 rounded-lg text-sm font-medium bg-teal-600 text-white"
+                        size="icon"
                         onClick={() => {
-                          setSelectedGym(gym);
+                          setSelectedMethod(data);
                           setIsDialogOpen(true);
                         }}
                       >
-                        Setuju
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        className="py-2.5 px-6 rounded-lg text-sm font-medium bg-red-200 text-red-800"
-                        onClick={() => setDeleteGym(gym)}
-                      >
-                        Batalkan
+                        <Pencil className="h-4 w-4" />
                       </Button>
                       </TableCell>
                   </TableRow>
                 ))) :
                 <TableRow>
-                <TableCell colSpan={6}>Tidak ada data pembayaran</TableCell>
+                <TableCell colSpan={6}>Tidak ada ktp yang perlu dikonfirmasi</TableCell>
               </TableRow>
                 }
             </TableBody>

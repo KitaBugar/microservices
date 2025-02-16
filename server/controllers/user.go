@@ -139,8 +139,16 @@ func LoginUser(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	userPassword := user.Password
+	var result *gorm.DB
+	role := r.FormValue("role")
+	if role == "admin" {
+		result = db.Where("email = ?", user.Email).Where("role = ?", "admin").First(&user)
 
-	result := db.Where("email = ?", user.Email).First(&user)
+	} else if role == "owner" {
+		result = db.Where("email = ?", user.Email).Where("role = ?", "owner").First(&user)
+	} else {
+		result = db.Where("email = ?", user.Email).First(&user)
+	}
 	switch {
 	case result.Error != nil:
 		respondError(w, http.StatusNotFound, result.Error.Error())

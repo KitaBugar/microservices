@@ -134,6 +134,7 @@ func (a *App) setRouters() {
 	// Facility
 	a.Get(apiRouter, "/facility", a.getAllFacility)
 	a.Post(apiRouter, "/facility", a.createFacility)
+	a.Update(apiRouter, "/facility", a.updateFacility)
 
 	// Method
 	a.Get(apiRouter, "/method", a.getAllMethod)

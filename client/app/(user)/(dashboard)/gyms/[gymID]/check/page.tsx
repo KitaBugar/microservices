@@ -99,7 +99,6 @@ export default function PackagePage() {
       }
       setData(resGym)
     } catch (error) {
-      console.log(error);
       toast({
         title: "Email atau Password salah",
       })

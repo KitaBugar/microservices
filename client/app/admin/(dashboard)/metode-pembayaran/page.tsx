@@ -30,7 +30,8 @@ import Image from "next/image";
 import { confirmKTP } from "@/lib/api/admin";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Plus } from "lucide-react";
+import { Pencil, Plus } from "lucide-react";
+import { createMethod, updateMethod } from "@/lib/api/method";
 
 type Image = {
     image: string;
@@ -61,7 +62,7 @@ export default function GymsPage() {
 
 
 
-  async function getDataGym() {
+  async function getData() {
     try {
       const response = await fetch(`${ApiUrl}/method`, {
         headers:{
@@ -81,14 +82,19 @@ export default function GymsPage() {
   async function handleSave (e: React.FormEvent<HTMLFormElement>)  {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
+    let res
     try {
-      const res = await confirmKTP(formData)
-      await getDataGym();
-      console.log(res.message);
-      
+      if (selectedMethod) {
+        res = await updateMethod(formData)
+      }else{
+        res = await createMethod(formData)
+      }
+      await getData();
       toast({
         title: `${res.message}`,
       });
+      setSelectedMethod(null)
+      setIsDialogOpen(false)
     } catch (error) {
       console.log(error);
     }
@@ -102,7 +108,7 @@ export default function GymsPage() {
   }
   
   useEffect(() => {
-    getDataGym()
+    getData()
   },[])
 
   return (
@@ -128,7 +134,7 @@ export default function GymsPage() {
                   <Input
                     id="name"
                     name="method_id"
-                    defaultValue={selectedMethod?.id}
+                    defaultValue={selectedMethod?.id ?? "null"}
                     required
                     hidden={true}
                     className="hidden"
@@ -176,35 +182,23 @@ export default function GymsPage() {
               { data?.items != undefined ? (
                 data?.items.map((data: MethodData) => (
                   <TableRow key={data.id}>
-                    <TableCell>{data.phone_number}</TableCell>
+                    <TableCell>{data.name}</TableCell>
                     <TableCell>
                       <Link href={`${Url}/assets/method/${data?.image?.image}`} target="_blank">
                         <Image src={`${Url}/assets/method/${data?.image?.image}`} alt="image-method" width={200} height={100} className="object-contain w-[200px] h-[200px]"/>
                       </Link>
                     </TableCell>
                     <TableCell className="flex justify-end items-center gap-2 h-full">
-                      <form onSubmit={handleSave}>
-                        <input type="text" hidden name="data_id" value={data.id} />
-                        <input type="text" hidden name="confirmation" value="success" />
-                        <Button
-                          variant="ghost"
-                          className="py-2.5 px-6 rounded-lg text-sm font-medium bg-teal-600 text-white"
-                          type="submit"
-                        >
-                          Setuju
-                        </Button>
-                      </form>
-                      <form onSubmit={handleSave}>
-                        <input type="text" hidden name="data_id" value={data.id} />
-                        <input type="text" hidden name="confirmation" value="cancel" />
-                        <Button
-                          variant="ghost"
-                          className="py-2.5 px-6 rounded-lg text-sm font-medium bg-red-200 text-red-800"
-                          type="submit"
-                       >
-                          Batalkan
-                        </Button>
-                      </form>
+                    <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => {
+                          setSelectedMethod(data);
+                          setIsDialogOpen(true);
+                        }}
+                      >
+                        <Pencil className="h-4 w-4" />
+                      </Button>
                       </TableCell>
                   </TableRow>
                 ))) :

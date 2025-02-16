@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -14,7 +14,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Plus, Pencil, Trash2 } from "lucide-react";
+import { Plus, Pencil, Trash2, BarChart } from "lucide-react";
 const Dialog = dynamic(() => import('@/components/ui/dialog').then((mod) => mod.Dialog));
 const DialogContent = dynamic(() => import('@/components/ui/dialog').then((mod) => mod.DialogContent));
 const DialogHeader = dynamic(() => import('@/components/ui/dialog').then((mod) => mod.DialogHeader));
@@ -38,6 +38,8 @@ import { ApiUrl } from "@/config/config";
 import { getCookie } from "@/lib/utils";
 import { useParams, useRouter } from "next/navigation";
 import { createPackage, editPackage } from "@/lib/api/membership_options";
+import { ChartContainer, ChartTooltip } from "@/components/ui/chart";
+import { Bar } from "recharts";
 
 type GymData = {
     id: number;

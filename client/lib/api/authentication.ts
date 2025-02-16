@@ -11,14 +11,12 @@ const formSchemaSignup = z.object({
     phone_number: z.string(),
     password: z.string()
 })
-export async function login(formData: z.infer<typeof formSchema>) {
+export async function login(formData: FormData) {
    try {
-    const formDataToSend = new FormData();
-    formDataToSend.append("email", formData.email);
-    formDataToSend.append("password", formData.password);
+   
     const response = await fetch(`${ApiUrl}/user/login`,{
         method: "POST",
-        body: formDataToSend
+        body: formData
     })
 
     if (!response.ok) {

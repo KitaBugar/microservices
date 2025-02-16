@@ -70,7 +70,10 @@ func CreateMethod(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
 	}
 
 	response := method.ToResponse()
-	respondJSON(w, http.StatusCreated, response)
+	respondJSON(w, http.StatusCreated, utils.Response{
+		Items:   response,
+		Message: "Berhasil menambahkan metode pembayaran",
+	})
 }
 
 func UpdateMethod(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
@@ -129,5 +132,8 @@ func UpdateMethod(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
 	}
 
 	db.Model(&method).Updates(&newM)
-	respondJSON(w, http.StatusCreated, method.ToResponse())
+	respondJSON(w, http.StatusCreated, utils.Response{
+		Items:   method.ToResponse(),
+		Message: "Berhasil mengubah metode pembayaran",
+	})
 }
