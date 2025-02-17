@@ -1,7 +1,6 @@
 package controllers
 
 import (
-	"encoding/json"
 	"fmt"
 	"net/http"
 	"server/pkg/models"
@@ -61,12 +60,12 @@ func CreateMembershipOptions(db *gorm.DB, w http.ResponseWriter, r *http.Request
 		respondError(w, http.StatusBadRequest, err.Error())
 		return
 	}
-	featureJSON, _ := json.Marshal(r.Form["features"])
+	featureJSON := r.Form["features"]
 	membershipOptions = models.MembershipOption{
 		Name:        name,
 		Description: description,
 		Price:       price,
-		Features:    string(featureJSON),
+		Features:    featureJSON,
 		UserID:      gym.UserID,
 		GymID:       gym.ID,
 	}

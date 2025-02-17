@@ -20,7 +20,7 @@ import (
 
 func GetAllGym(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
 	var gyms []models.Gym
-	result := db.Scopes(utils.Paginate(r)).Model(&models.Gym{}).Preload("Facilities").Preload("MembershipOptions").Find(&gyms)
+	result := db.Scopes(utils.Paginate(r)).Model(&models.Gym{}).Preload("Facilities").Preload("Province").Preload("Regency").Preload("MembershipOptions").Preload("User.MethodPayment").Find(&gyms)
 	if result.Error != nil {
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 		return
@@ -63,8 +63,8 @@ func CreateGym(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
 		StartTime:   r.FormValue("start_time"),
 		EndTime:     r.FormValue("end_time"),
 		Address:     r.FormValue("address"),
-		CityID:      CityID,
-		ProvinceID:  ProvinceID,
+		CityID:      uint(CityID),
+		ProvinceID:  uint(ProvinceID),
 		UserID:      user.ID,
 	}
 
@@ -166,7 +166,7 @@ func DetailGym(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	gym := &models.Gym{}
-	result := db.Preload("Facilities").Preload("MembershipOptions").Preload("User.MethodPayment").First(&gym, gymID)
+	result := db.Preload("Facilities").Preload("Province").Preload("Regency").Preload("MembershipOptions").Preload("User.MethodPayment").First(&gym, gymID)
 	if result.Error != nil {
 		respondError(w, http.StatusBadRequest, result.Error.Error())
 		return
@@ -198,8 +198,8 @@ func UpdateGym(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
 	prov, _ := strconv.Atoi(r.FormValue("province_id"))
 	gym.Name = r.FormValue("name")
 	gym.Description = r.FormValue("description")
-	gym.ProvinceID = prov
-	gym.CityID = city
+	gym.ProvinceID = uint(prov)
+	gym.CityID = uint(city)
 
 	if err := db.Save(&gym).Error; err != nil {
 		respondError(w, http.StatusInternalServerError, "Failed to update gym")

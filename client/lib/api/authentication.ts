@@ -47,9 +47,13 @@ export async function signup(formData: z.infer<typeof formSchemaSignup>) {
         method: "POST",
         body: formDataToSend
     })
+
+    if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || "Register failed");
+     }
     return await response.json()
-    
    } catch (error) {
-    throw error
+    return error
    }
 }

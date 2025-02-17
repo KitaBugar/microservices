@@ -1,7 +1,6 @@
 package models
 
 type Province struct {
-	ID   int    `json:"id"`
-	Code int    `json:"code"`
+	ID   uint   `gorm:"primaryKey" json:"id"`
 	Name string `json:"name"`
 }

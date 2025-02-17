@@ -108,8 +108,7 @@ export default function GymsPage() {
       await handleConfirmationMember(formData)
       await getDataConfirmation();
       toast({
-        title: `Berhasil mengirim data!`,
-        description: `${selectedGym?.name} has been ${selectedGym ? "updated" : "added"} to the system.`,
+        title: `Berhasil konfirmasi!`,
       });
       setIsDialogOpen(false);
       setSelectedGym(null);

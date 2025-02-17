@@ -23,14 +23,16 @@ type Gym struct {
 	StartTime         string `json:"start_time" validate:"required"`
 	EndTime           string `json:"end_time" validate:"required"`
 	Address           string `gorm:"type:text;default:null" validate:"required" json:"address"`
-	CityID            int    `gorm:"not null" json:"city_id"`
-	ProvinceID        int    `gorm:"not null" json:"province_id"`
+	CityID            uint   `gorm:"not null" json:"city_id"`
+	ProvinceID        uint   `gorm:"not null" json:"province_id"`
 	UserID            uint   `gorm:"not null" json:"user_id"`
-	User              User
+	User              User   `json:"user"`
 	Memberships       []Membership
-	Facilities        []*Facility `gorm:"many2many:gym_facilities" json:"facilities"`
-	MembershipOptions []MembershipOption
+	Facilities        []*Facility        `gorm:"many2many:gym_facilities" json:"facilities"`
+	MembershipOptions []MembershipOption `json:",omitempty"`
 	Transactions      []Transaction
+	Regency           Regency  `gorm:"foreignKey:CityID;references:ID" json:"city"`
+	Province          Province `gorm:"foreignKey:ProvinceID;references:ID" json:"province"`
 	gorm.Model        `json:"-"`
 }
 
@@ -43,16 +45,17 @@ type GymResponse struct {
 	StartTime         string             `json:"start_time" validate:"required"`
 	EndTime           string             `json:"end_time" validate:"required"`
 	Address           string             `json:"address"`
-	CityID            int                `json:"city_id"`
-	ProvinceID        int                `json:"province_id"`
+	CityID            uint               `json:"city_id"`
+	ProvinceID        uint               `json:"province_id"`
 	UserID            uint               `json:"user_id"`
 	CreatedAt         string             `json:"created_at"`
 	UpdatedAt         string             `json:"updated_at"`
 	MembershipOptions []MembershipOption `json:"membership_option"`
 	User              User               `json:"user"`
 	Facilities        []*Facility        `json:"facility"`
-	Memberships       []Membership       `json:"membership"`
-	City              interface{}
+	Memberships       []Membership       `json:"membership,omitempty"`
+	Regency           Regency            `json:"city"`
+	Province          Province           `json:"province"`
 }
 
 func (u *Gym) ToResponse() *GymResponse {
@@ -72,7 +75,6 @@ func (u *Gym) ToResponse() *GymResponse {
 		})
 
 	}
-	// city
 	return &GymResponse{
 		ID:                u.ID,
 		Name:              u.Name,
@@ -90,5 +92,7 @@ func (u *Gym) ToResponse() *GymResponse {
 		MembershipOptions: u.MembershipOptions,
 		Facilities:        u.Facilities,
 		Memberships:       u.Memberships,
+		Regency:           u.Regency,
+		Province:          u.Province,
 	}
 }

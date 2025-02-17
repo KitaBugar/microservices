@@ -69,6 +69,8 @@ func (a *App) Initialize(config *config.Config) {
 		&models.Claims{},
 		&models.MembershipOption{},
 		&models.Transaction{},
+		&models.Regency{},
+		&models.Province{},
 		&models.Method{},
 		&models.MethodPayment{},
 		&models.CheckIn{},

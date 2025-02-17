@@ -25,7 +25,7 @@ import {
 import { Input } from '@/components/ui/input'
 import { PasswordInput } from '@/components/ui/password-input'
 import { signup } from '@/lib/api/authentication'
-
+import { useToast } from '@/hooks/use-toast'
 
 const formSchema = z.object({
   name: z.string(),
@@ -47,12 +47,15 @@ export default function LoginPreview() {
       password: '',
     },
   })
+  const {toast} = useToast()
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     try {
       const res = await signup(values)      
      if (res) {
-
+        if (res instanceof Error) {
+          throw res.message
+        }     
         window.location.href = "/login"
         toast(
             <pre className="mt-2 w-[340px] rounded-md bg-slate-950 p-4">
@@ -62,8 +65,10 @@ export default function LoginPreview() {
      }
      
     } catch (error) {
+      toast({
+        title: "Email sudah digunakan!"
+      })
       console.error('Form submission error', error)
-      toast.error('Failed to submit the form. Please try again.')
     }
   }
 

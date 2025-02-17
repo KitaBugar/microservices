@@ -39,7 +39,8 @@ type User struct {
 	Memberships       []Membership       `json:"membership"`
 	MembershipOptions []MembershipOption `json:"membership_option"`
 	Transactions      []Transaction
-	MethodPayment     MethodPayment
+
+	MethodPayment MethodPayment `json:"method_payment"`
 }
 
 func IsValidGender(gender string) string {

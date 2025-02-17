@@ -56,7 +56,7 @@ type PackageData = {
     id: number;
     name: string;
     description: string;
-    features: string;
+    features: string[];
     price: number;
     gym_id: string;
     user_id: string;
@@ -252,11 +252,11 @@ export default function PackagePage() {
                     <TableCell>
                     {(() => {
                       try {
-                        const parsedFeatures = JSON.parse(paket.features);
-                        if (Array.isArray(parsedFeatures)) {
+                        // const parsedFeatures = JSON.parse(paket.features);
+                        if (paket.features) {
                           return (
                             <ul>
-                              {parsedFeatures.map((feature, index) => (
+                              {paket.features.map((feature, index) => (
                                 <li key={index}>- {feature}</li>
                               ))}
                             </ul>

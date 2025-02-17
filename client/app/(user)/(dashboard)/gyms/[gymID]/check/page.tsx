@@ -111,6 +111,10 @@ export default function PackagePage() {
     const formData = new FormData(e.currentTarget);
     try {
       await createCheckIn(formData, params)
+      await getDataPackage()
+      toast({
+        title: "Kode member valid"
+      })
     } catch (error) {
       const errorMessage = (error instanceof Error) ? error.message : String(error);
       toast({
