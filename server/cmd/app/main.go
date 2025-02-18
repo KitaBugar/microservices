@@ -16,5 +16,5 @@ func main() {
 	Config := config.GetConfig()
 	App := &server.App{}
 	App.Initialize(Config)
-	App.Run(":8000")
+	App.Run("192.168.38.19:8000")
 }

@@ -33,7 +33,6 @@ export async function editGym(formData: FormData) {
               }),
             body: formData,
           });
-          
         return await response.json()
     } catch (error) {
         throw error

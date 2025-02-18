@@ -57,18 +57,25 @@ import { ApiUrl } from "@/config/config";
 import { getCookie } from "@/lib/utils";
 import { number } from "zod";
 import Link from "next/link";
+import Image from "next/image";
+import { REGEXP_ONLY_CHARS } from "input-otp";
 
 type GymData = {
     id: number;
     name: string;
     description: string;
     address: string;
-    images: string;
+    image: Image[];
     city_id: string;
     province_id: string;
     start_time: string;
     end_time: string;
 }
+type Image = {
+    url: string;
+    image_url: string;
+}
+
 type ProvinceData = {
     id: string;
     code: string;
@@ -94,6 +101,7 @@ export default function GymsPage() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [regency, setRegency] = useState<ApiResponse<RegencyData> | null>(null);
   const [province, setProvince] = useState<ApiResponse<ProvinceData> | null>(null);
+  const [selectedProvince, setSelectedProvince] = useState<ApiResponse<ProvinceData> | null>(null);
   const [selectedGym, setSelectedGym] = useState<GymData | null>(null);
   const [deleteGym, setDeleteGym] = useState<GymData | null>(null);
   const { toast } = useToast();
@@ -102,7 +110,7 @@ export default function GymsPage() {
     try {
       const response = await fetch(`${ApiUrl}/gym/owner`, {
         headers:{
-          "Authorization": `Bearer ${getCookie("token")}`
+          "Authorization": `Bearer ${getCookie("token")}`,
         }
       })
       const resGym: ApiResponse<GymData> = await response.json()
@@ -132,29 +140,6 @@ export default function GymsPage() {
       await getDataGym();
       toast({
         title: `Berhasil menambahkan gym!`,
-      });
-      setIsDialogOpen(false);
-      setSelectedGym(null);
-    } catch (error) {
-      console.log(error);
-    }
-  };
-  async function handleEdit (e: React.FormEvent<HTMLFormElement>)  {
-    e.preventDefault();
-    const formData = new FormData(e.currentTarget);
-    const fileInput = e.currentTarget.querySelector('input[type="file"]') as HTMLInputElement;
-    if (fileInput && fileInput.files) {
-      Array.from(fileInput.files).forEach((file, index) => {
-        formData.append(`images[${index}]`, file);
-      });
-    }
-    
-    try {
-      await createGym(formData)
-      await getDataGym();
-      toast({
-        title: `Gym ${selectedGym ? "updated" : "created"} successfully!`,
-        description: `${formData.get("name")} has been ${selectedGym ? "updated" : "added"} to the system.`,
       });
       setIsDialogOpen(false);
       setSelectedGym(null);
@@ -224,7 +209,7 @@ export default function GymsPage() {
           </DialogTrigger>
           <DialogContent className="max-w-2xl">
             <DialogHeader>
-              <DialogTitle>{selectedGym ? "Edit" : "Add"} Gym</DialogTitle>
+              <DialogTitle>{selectedGym ? "Edit" : "Tambah"} Gym</DialogTitle>
             </DialogHeader>
             <form onSubmit={handleSave} className="space-y-4" encType="multipart/form-data">
               <div className="grid gap-4">
@@ -234,7 +219,7 @@ export default function GymsPage() {
                   <Input
                     id="name"
                     name="gym_id"
-                    defaultValue={selectedGym?.id}
+                    defaultValue={selectedGym?.id ?? "null"}
                     required
                     hidden={true}
                     className="hidden"
@@ -283,7 +268,7 @@ export default function GymsPage() {
               </div>
               <div className="space-y-2">
                   <label htmlFor="regency" className="text-sm font-medium">Provinsi</label>
-                  <Select name="province_id">
+                  <Select name="province_id" value={selectedGym?.province_id.toString()}>
                     <SelectTrigger className="w-[280px]">
                       <SelectValue placeholder="Pilih Provinsi" />
                     </SelectTrigger>
@@ -299,7 +284,8 @@ export default function GymsPage() {
               <div className="grid grid-cols-1 gap-4">
                 <div className="space-y-2">
                   <label htmlFor="regency" className="text-sm font-medium">Kota/Kabupaten</label>
-                  <Select name="city_id" value={selectedGym?.city_id.toString()}>
+                  <Select name="city_id" value={selectedGym?.city_id.toString()} 
+                  >
                     <SelectTrigger className="w-[280px]">
                       <SelectValue placeholder="Pilih Kota/Kabupaten" />
                     </SelectTrigger>
@@ -356,7 +342,7 @@ export default function GymsPage() {
               <TableRow>
                 <TableHead>Gambar</TableHead>
                 <TableHead>Nama Tempat</TableHead>
-                <TableHead>Deskripsi</TableHead>
+                <TableHead className="w-[500px]">Deskripsi</TableHead>
                 <TableHead>Buka</TableHead>
                 <TableHead>Tutup</TableHead>
                 <TableHead>Alamat</TableHead>
@@ -370,7 +356,17 @@ export default function GymsPage() {
                 data?.items.map((gym: GymData) => (
                   <TableRow key={gym.id}>
                     <TableCell>
-                      {gym.images}
+                      {
+                        (gym?.image != undefined) ? (
+                          <Image
+                          src={gym?.image[0].image_url}
+                          width={70}
+                          height={70}
+                          alt="image gym"
+                          />
+                        ) : ""
+                      }
+                    
                     </TableCell>
                     <TableCell>{gym.name}</TableCell>
                     <TableCell>{gym.description}</TableCell>

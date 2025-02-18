@@ -56,7 +56,6 @@ export default function GymsPage() {
   const [data, setData] = useState<ApiResponse | null>(null);
   const [selectedMethod, setSelectedMethod] = useState<MethodData | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [deleteGym, setDeleteGym] = useState <MethodData | null>(null);
   const { toast } = useToast();
 
 
