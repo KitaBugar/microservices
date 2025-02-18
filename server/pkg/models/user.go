@@ -1,6 +1,8 @@
 package models
 
 import (
+	"fmt"
+	"os"
 	"time"
 
 	"gorm.io/gorm"
@@ -55,10 +57,15 @@ func IsValidGender(gender string) string {
 
 // Response
 
+type AvatarImage struct {
+	Url      string `json:"url"`
+	ImageUrl string `json:"image_url"`
+}
+
 type UserResponse struct {
 	ID             uint          `json:"id"`
 	Name           string        `json:"name"`
-	Avatar         string        `json:"avatar"`
+	Avatar         AvatarImage   `json:"avatar"`
 	Email          string        `json:"email"`
 	PhoneNumber    string        `json:"phone_number"`
 	Role           string        `json:"role"`
@@ -72,10 +79,13 @@ type UserResponse struct {
 }
 
 func (u *User) ToResponse() UserResponse {
+	var image AvatarImage
+	image.Url = u.Avatar
+	image.ImageUrl = fmt.Sprintf("%s/assets/avatar/%s", os.Getenv("APP_URL"), u.Avatar)
 	return UserResponse{
 		ID:             u.ID,
 		Name:           u.Name,
-		Avatar:         u.Avatar,
+		Avatar:         image,
 		Email:          u.Email,
 		PhoneNumber:    u.PhoneNumber,
 		Identify:       u.Identify,

@@ -201,17 +201,64 @@ func UpdateGym(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
 	gym.ProvinceID = uint(prov)
 	gym.CityID = uint(city)
 
+	imageCount := 0
+	for {
+		keyImage := fmt.Sprintf("images[%d]", imageCount)
+		if _, _, err := r.FormFile(keyImage); err == http.ErrMissingFile || err != nil {
+			break
+		}
+		imageCount++
+	}
+
+	var imageCollect []string
+	for i := 0; i < imageCount; i++ {
+		imageKey := fmt.Sprintf("images[%d]", i)
+		uploadedFile, handler, err := r.FormFile(imageKey)
+		if err == nil {
+			if err != http.ErrMissingFile {
+				if err := r.ParseMultipartForm(2 << 20); err != nil {
+					respondError(w, http.StatusBadRequest, "file melebihi 2mb")
+					return
+				}
+				dir, err := os.Getwd()
+				defer uploadedFile.Close()
+
+				if err != nil {
+					http.Error(w, err.Error(), http.StatusInternalServerError)
+					return
+				}
+
+				dateStr := time.Now().Format("20060102")
+				uniqueUUID := uuid.New().String()
+				filename := fmt.Sprintf("IMG_banner_%s_%s%s", dateStr, uniqueUUID, filepath.Ext(handler.Filename))
+				fileLocation := filepath.Join(dir, "public/image_banner", filename)
+				targetFile, err := os.OpenFile(fileLocation, os.O_WRONLY|os.O_CREATE, 0666)
+				if err != nil {
+					http.Error(w, err.Error(), http.StatusInternalServerError)
+					return
+				}
+				defer targetFile.Close()
+				if _, err := io.Copy(targetFile, uploadedFile); err != nil {
+					http.Error(w, err.Error(), http.StatusInternalServerError)
+					return
+				}
+				imageCollect = append(imageCollect, filename)
+			} else {
+				respondError(w, http.StatusBadRequest, "gambar gym harus ada")
+				return
+			}
+
+		}
+	}
+	if len(imageCollect) > 0 {
+		imageJSON, _ := json.Marshal(imageCollect)
+		gym.Images = string(imageJSON)
+	}
 	if err := db.Save(&gym).Error; err != nil {
 		respondError(w, http.StatusInternalServerError, "Failed to update gym")
 		return
 	}
-
-	decoder := json.NewDecoder(r.Body)
-	if err := decoder.Decode(&gym); err != nil {
-		respondError(w, http.StatusBadRequest, err.Error())
-		return
-	}
-	defer r.Body.Close()
+	respondJSON(w, http.StatusOK, gym)
 }
 
 func DeleteGym(db *gorm.DB, w http.ResponseWriter, r *http.Request) {

@@ -24,7 +24,7 @@ func ListMembership(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	db.Where("email = ?", email).First(&user)
-	result := db.Scopes(utils.Paginate(r)).Model(&models.Membership{}).Preload("Gym.Regency").Preload("Gym.Province").Preload("MembershipOption").Preload("User").Where("user_id = ?", user.ID).Find(&membership).Error
+	result := db.Scopes(utils.Paginate(r)).Model(&models.Membership{}).Preload("Gym.Regency").Preload("Gym.User.MethodPayment").Preload("Gym.Province").Preload("MembershipOption").Preload("User.MethodPayment").Where("user_id = ?", user.ID).Find(&membership).Error
 	if result != nil {
 		respondJSON(w, http.StatusOK, utils.Response{Items: "", Message: "Belum ada membership"})
 		return

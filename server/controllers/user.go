@@ -53,17 +53,33 @@ func DetailUser(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
 }
 
 func UpdateUser(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
-	user := models.User{
-		Name:        r.FormValue("name"),
-		PhoneNumber: r.FormValue("phone_number"),
-		Gender:      models.Gender(r.FormValue("gender")),
+	userUpdates := map[string]interface{}{}
+
+	name := r.FormValue("name")
+	phoneNumber := r.FormValue("phone_number")
+	gender := r.FormValue("gender")
+
+	if name != "" {
+		userUpdates["name"] = name
 	}
+	if phoneNumber != "" {
+		userUpdates["phone_number"] = phoneNumber
+	}
+	if gender != "" {
+		userUpdates["gender"] = models.Gender(gender)
+	}
+
 	email, ok := r.Context().Value(middleware.EmailKey).(string)
 	if email == "" || !ok {
 		respondError(w, http.StatusBadRequest, "Akun tidak ditemukan")
 		return
 	}
-	db.Model(&user).Where("email = ?", email).Updates(&user)
+
+	if len(userUpdates) > 0 {
+		db.Model(&models.User{}).Where("email = ?", email).Updates(userUpdates)
+	}
+	var user models.User
+	db.Where("email = ?", email).First(&user)
 	uploadedFile, handler, err := r.FormFile("avatar")
 	if err == nil {
 		if err != http.ErrMissingFile {
@@ -101,14 +117,16 @@ func UpdateUser(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
 				http.Error(w, err.Error(), http.StatusInternalServerError)
 				return
 			}
+			db.Model(&models.User{}).Where("email = ?", email).Update("avatar", filename)
 			user.Avatar = filename
 		} else {
 			respondError(w, http.StatusBadRequest, "gambar avatar harus ada")
 			return
 		}
 	}
-
-	respondJSON(w, http.StatusCreated, user.ToResponse())
+	var updatedUser models.User
+	db.Where("email = ?", email).First(&updatedUser)
+	respondJSON(w, http.StatusCreated, updatedUser.ToResponse())
 
 }
 
