@@ -78,11 +78,11 @@ type UserResponse struct {
 	MethodPayment  MethodPayment `json:"method_payment"`
 }
 
-func (u *User) ToResponse() UserResponse {
+func (u *User) ToResponse() *UserResponse {
 	var image AvatarImage
 	image.Url = u.Avatar
 	image.ImageUrl = fmt.Sprintf("%s/assets/avatar/%s", os.Getenv("APP_URL"), u.Avatar)
-	return UserResponse{
+	return &UserResponse{
 		ID:             u.ID,
 		Name:           u.Name,
 		Avatar:         image,

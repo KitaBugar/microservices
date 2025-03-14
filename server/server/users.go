@@ -14,6 +14,7 @@ func (a *App) createUser(w http.ResponseWriter, r *http.Request) {
 func (a *App) detailUser(w http.ResponseWriter, r *http.Request) {
 	controllers.DetailUser(a.DB, w, r)
 }
+
 func (a *App) updateUser(w http.ResponseWriter, r *http.Request) {
 	controllers.UpdateUser(a.DB, w, r)
 }

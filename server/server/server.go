@@ -95,7 +95,7 @@ func (a *App) setRouters() {
 	a.Post(apiRouter, "/user", a.createUser)
 	a.Update(apiRouter, "/user", a.updateUser)
 	a.Get(apiRouter, "/user/detail", a.detailUser)
-	a.Delete(apiRouter, "/user", a.deleteUser)
+	a.Delete(apiRouter, "/user/{userID}", a.deleteUser)
 	a.Post(apiRouter, "/user/ktp", a.uploadKTP)
 
 	// Confirmation KTP

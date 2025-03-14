@@ -1,7 +1,6 @@
 package controllers
 
 import (
-	"encoding/json"
 	"fmt"
 	"io"
 	"log"
@@ -11,14 +10,27 @@ import (
 	"server/middleware"
 	"server/pkg/models"
 	"server/utils"
+	"strconv"
 	"time"
 
 	"github.com/google/uuid"
+	"github.com/gorilla/mux"
 	"gorm.io/gorm"
 )
 
 func GetAllUser(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
+	var users []models.User
+	result := db.Scopes(utils.Paginate(r)).Model(&models.User{}).Find(&users)
+	if result.Error != nil {
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		return
+	}
 
+	var responses []models.UserResponse
+	for _, user := range users {
+		responses = append(responses, *user.ToResponse())
+	}
+	respondJSON(w, http.StatusOK, utils.ToResponse(r, responses, "Success"))
 }
 
 func CreateUser(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
@@ -131,14 +143,18 @@ func UpdateUser(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
 }
 
 func DeleteUser(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
-	gym := models.Gym{}
-
-	decoder := json.NewDecoder(r.Body)
-	if err := decoder.Decode(&gym); err != nil {
-		respondError(w, http.StatusBadRequest, err.Error())
+	vars := mux.Vars(r)
+	str, ok := vars["userID"]
+	if !ok {
+		respondError(w, http.StatusBadRequest, "Missing user id")
 		return
 	}
-	defer r.Body.Close()
+	gID, _ := strconv.Atoi(str)
+	gym := models.User{
+		ID: uint(gID),
+	}
+	db.Delete(&gym)
+	respondJSON(w, http.StatusOK, "Berhasil menghapus data")
 }
 
 func LoginUser(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
@@ -184,7 +200,7 @@ func LoginUser(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
 		userToken := &UserToken{}
 		token := utils.MakeTokenFromEmail(db, user.Email)
 		userToken.Token = token
-		userToken.User = user.ToResponse()
+		userToken.User = *user.ToResponse()
 		respondJSON(w, http.StatusOK, utils.ToResponse(r, userToken, "success"))
 	}
 
